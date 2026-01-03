@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tv_home_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Home"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Add Recipe -->
+    <Button
+        android:id="@+id/btn_add_recipe"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Add Recipe"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/tv_home_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- My Recipes -->
+    <Button
+        android:id="@+id/btn_my_recipes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="My Recipes"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/btn_add_recipe"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Favorites -->
+    <Button
+        android:id="@+id/btn_favorites"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Favorites"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/btn_my_recipes"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Search Online -->
+    <Button
+        android:id="@+id/btn_search_online"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Search Recipes Online"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/btn_favorites"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Logout -->
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/btn_search_online"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
