@@ -43,5 +43,11 @@ public class HomeFragment extends Fragment {
             Navigation.findNavController(v)
                     .navigate(R.id.action_homeFragment_to_loginFragment);
         });
+
+        // Search
+        view.findViewById(R.id.btn_search_online).setOnClickListener(v ->
+                Navigation.findNavController(v)
+                        .navigate(R.id.action_homeFragment_to_searchOnlineFragment)
+        );
     }
 }

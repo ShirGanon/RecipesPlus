@@ -1,4 +1,4 @@
-package com.example.recipesplus.ui.search;
+package com.example.recipesplus.ui.recipes;
 
 import android.os.Bundle;
 import android.view.View;

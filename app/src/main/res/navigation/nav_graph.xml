@@ -40,6 +40,9 @@
         <action
             android:id="@+id/action_homeFragment_to_addRecipeFragment"
             app:destination="@id/addRecipeFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_searchOnlineFragment"
+            app:destination="@id/searchOnlineFragment" />
     </fragment>
     <fragment
         android:id="@+id/myRecipesFragment"
@@ -76,4 +79,9 @@
         android:name="recipeId"
         app:argType="string"
         app:nullable="true" />
+    <fragment
+        android:id="@+id/searchOnlineFragment"
+        android:name="com.example.recipesplus.ui.recipes.SearchOnlineFragment"
+        android:label="fragment_search_online"
+        tools:layout="@layout/fragment_search_online" />
 </navigation>
