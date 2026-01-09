@@ -32,7 +32,7 @@ public class RecipeDetailsFragment extends Fragment {
             return;
         }
 
-        Recipe recipe = RecipeRepository.getInstance().getByTitle(recipeId);
+        Recipe recipe = RecipeRepository.getInstance().getById(recipeId);
         if (recipe == null) {
             tvTitle.setText("Recipe not found");
             return;

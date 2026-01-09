@@ -68,4 +68,15 @@ public class RecipeRepository {
         return null;
     }
 
+    public Recipe getById(String id) {
+        if (id == null) return null;
+
+        for (Recipe r : recipes) {
+            if (id.equals(r.getId())) {
+                return r;
+            }
+        }
+        return null;
+    }
+
 }
