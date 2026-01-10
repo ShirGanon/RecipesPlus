@@ -60,21 +60,40 @@ public class SearchOnlineFragment extends Fragment {
                                     ? online.getInstructions()
                                     : online.getSummary();
 
+                            RecipeRepository repo = RecipeRepository.getInstance();
+                            Recipe existing = repo.getByTitle(online.getTitle());
+
+                            if (existing != null) {
+                                boolean updated = false;
+
+                                if (isBlank(existing.getIngredients()) && !isBlank(online.getIngredients())) {
+                                    existing.setIngredients(online.getIngredients());
+                                    updated = true;
+                                }
+
+                                if (isBlank(existing.getInstructions()) && !isBlank(instructions)) {
+                                    existing.setInstructions(instructions);
+                                    updated = true;
+                                }
+
+                                if (updated) {
+                                    Toast.makeText(requireContext(), "Updated recipe details", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(requireContext(), "Already saved", Toast.LENGTH_SHORT).show();
+                                }
+
+                                return true;
+                            }
+
                             Recipe local = new Recipe(
                                     online.getTitle(),
-                                    "", // ingredients not available in this simplified flow
+                                    online.getIngredients(),
                                     instructions
                             );
 
-                            boolean saved = RecipeRepository.getInstance().addIfNotExists(local);
-
-                            if (saved) {
-                                Toast.makeText(requireContext(), "Saved to My Recipes", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(requireContext(), "Already saved", Toast.LENGTH_SHORT).show();
-                            }
-
-                            return saved;
+                            repo.add(local);
+                            Toast.makeText(requireContext(), "Saved to My Recipes", Toast.LENGTH_SHORT).show();
+                            return true;
                         }));
                     });
                 }
@@ -87,5 +106,9 @@ public class SearchOnlineFragment extends Fragment {
                 }
             });
         });
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

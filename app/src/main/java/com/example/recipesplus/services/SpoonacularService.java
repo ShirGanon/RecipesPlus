@@ -39,7 +39,8 @@ public class SpoonacularService {
                                 + "?apiKey=" + apiKey
                                 + "&query=" + q
                                 + "&number=20"
-                                + "&addRecipeInformation=true";
+                                + "&addRecipeInformation=true"
+                                + "&fillIngredients=true";
 
                 URL url = new URL(urlStr);
                 conn = (HttpURLConnection) url.openConnection();
@@ -69,8 +70,9 @@ public class SpoonacularService {
                     String title = r.optString("title", "");
                     String summary = stripHtml(r.optString("summary", ""));
                     String instructions = stripHtml(r.optString("instructions", ""));
+                    String ingredients = extractIngredients(r.optJSONArray("extendedIngredients"));
 
-                    list.add(new OnlineRecipe(title, summary, instructions));
+                    list.add(new OnlineRecipe(title, summary, instructions, ingredients));
                 }
 
                 callback.onSuccess(list);
@@ -81,6 +83,23 @@ public class SpoonacularService {
                 if (conn != null) conn.disconnect();
             }
         });
+    }
+
+    private static String extractIngredients(JSONArray arr) {
+        if (arr == null) return "";
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject obj = arr.optJSONObject(i);
+            if (obj == null) continue;
+
+            String item = obj.optString("original", "");
+            if (item.isEmpty()) continue;
+
+            if (sb.length() > 0) sb.append("\n");
+            sb.append(item);
+        }
+        return sb.toString();
     }
 
     private static String stripHtml(String input) {
