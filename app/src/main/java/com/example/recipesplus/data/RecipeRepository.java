@@ -18,6 +18,7 @@ public class RecipeRepository {
 
     private RecipeRepository() {}
 
+
     public static synchronized RecipeRepository getInstance() {
         if (instance == null) instance = new RecipeRepository();
         return instance;

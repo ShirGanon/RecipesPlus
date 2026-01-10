@@ -52,6 +52,11 @@
         <action
             android:id="@+id/action_homeFragment_to_searchOnlineFragment"
             app:destination="@id/searchOnlineFragment" />
+
+        <!-- ✅ הוספה: מעבר ל-Favorites -->
+        <action
+            android:id="@+id/action_homeFragment_to_favoritesFragment"
+            app:destination="@id/favoritesFragment" />
     </fragment>
 
     <fragment
@@ -90,6 +95,17 @@
             android:name="recipeId"
             app:argType="string"
             app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/favoritesFragment"
+        android:name="com.example.recipesplus.ui.recipes.FavoritesFragment"
+        android:label="Favorites"
+        tools:layout="@layout/fragment_favorites">
+
+        <action
+            android:id="@+id/action_favoritesFragment_to_recipeDetailsFragment"
+            app:destination="@id/recipeDetailsFragment" />
     </fragment>
 
     <fragment
