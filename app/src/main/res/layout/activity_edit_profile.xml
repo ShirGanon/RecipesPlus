@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="20dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,56 +12,48 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add Recipe"
+            android:text="Edit Profile"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="16dp" />
 
-        <!-- 🔹 Title -->
         <EditText
-            android:id="@+id/et_title"
+            android:id="@+id/et_full_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Recipe title"
+            android:hint="Full name"
             android:inputType="textPersonName"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginBottom="12dp" />
 
-        <!-- 🔹 Category -->
         <EditText
-            android:id="@+id/et_category"
+            android:id="@+id/et_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Category"
-            android:layout_marginBottom="12dp"/>
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:layout_marginBottom="12dp" />
 
-        <!-- 🔹 Ingredients -->
         <EditText
-            android:id="@+id/et_ingredients"
+            android:id="@+id/et_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Ingredients (one per line)"
-            android:inputType="textMultiLine"
-            android:minLines="4"
-            android:gravity="top"
-            android:layout_marginBottom="12dp"/>
+            android:hint="New password"
+            android:inputType="textPassword"
+            android:layout_marginBottom="12dp" />
 
-        <!-- 🔹 Instructions -->
         <EditText
-            android:id="@+id/et_instructions"
+            android:id="@+id/et_confirm_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Instructions"
-            android:inputType="textMultiLine"
-            android:minLines="5"
-            android:gravity="top"
-            android:layout_marginBottom="18dp"/>
+            android:hint="Confirm new password"
+            android:inputType="textPassword"
+            android:layout_marginBottom="18dp" />
 
-        <!-- 🔹 Save -->
         <Button
-            android:id="@+id/btn_save_recipe"
+            android:id="@+id/btn_save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Save Recipe"/>
+            android:text="Save changes" />
 
     </LinearLayout>
 </ScrollView>
