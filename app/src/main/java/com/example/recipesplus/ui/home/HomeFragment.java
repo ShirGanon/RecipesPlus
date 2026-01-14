@@ -60,6 +60,13 @@ public class HomeFragment extends Fragment {
 
             Navigation.findNavController(v)
                     .navigate(R.id.loginFragment, null, navOptions);
+
         });
+        // About
+        view.findViewById(R.id.btn_about).setOnClickListener(v ->
+                Navigation.findNavController(v)
+                        .navigate(R.id.action_homeFragment_to_aboutFragment)
+        );
+
     }
 }

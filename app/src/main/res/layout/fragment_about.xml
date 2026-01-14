@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="About RecipesPlus"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:lineSpacingExtra="6dp"
+            android:text="
+RecipesPlus is an application that allows users to organize and manage their personal recipe collection in a simple and structured way.
+
+Users can add recipes using different methods, including creating recipes from a structured list of ingredients, adding personal custom ingredients, and saving favorite recipes found online.
+
+The application also supports categorizing recipes and marking favorites for quick access.
+
+The main goal of the system is to make it easier to search, browse, and find recipes from a personal collection, as well as to help users discover recipes that match the ingredients currently available in their kitchen.
+" />
+    </LinearLayout>
+
+</ScrollView>
