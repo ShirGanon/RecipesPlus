@@ -1,19 +1,17 @@
 package com.example.recipesplus.ui.home;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 
 import com.example.recipesplus.R;
-import com.example.recipesplus.ui.profile.EditProfileActivity;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeFragment extends Fragment {
 
@@ -22,49 +20,46 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // מאפשר להציג תפריט בפינה העליונה (אייקון ימני)
-        setHasOptionsMenu(true);
-    }
-
-    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
+        // My Recipes
         view.findViewById(R.id.btn_my_recipes).setOnClickListener(v ->
                 Navigation.findNavController(v)
                         .navigate(R.id.action_homeFragment_to_myRecipesFragment)
         );
 
+        // Add Recipe
         view.findViewById(R.id.btn_add_recipe).setOnClickListener(v ->
                 Navigation.findNavController(v)
                         .navigate(R.id.action_homeFragment_to_addRecipeFragment)
         );
 
+        // Favorites
+        view.findViewById(R.id.btn_favorites).setOnClickListener(v ->
+                Navigation.findNavController(v)
+                        .navigate(R.id.action_homeFragment_to_favoritesFragment)
+        );
+
+        // Search Online
         view.findViewById(R.id.btn_search_online).setOnClickListener(v ->
                 Navigation.findNavController(v)
                         .navigate(R.id.action_homeFragment_to_searchOnlineFragment)
         );
 
-        // ✅ Favorites
-        view.findViewById(R.id.btn_favorites).setOnClickListener(v ->
-                Navigation.findNavController(v)
-                        .navigate(R.id.action_homeFragment_to_favoritesFragment)
-        );
-    }
+        // Logout
+        view.findViewById(R.id.btn_logout).setOnClickListener(v -> {
 
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_home, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
+            // Debug toast (remove later if you want)
+            Toast.makeText(requireContext(), "Logout clicked", Toast.LENGTH_SHORT).show();
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_edit_profile) {
-            startActivity(new Intent(requireContext(), EditProfileActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+            FirebaseAuth.getInstance().signOut();
+
+            NavOptions navOptions = new NavOptions.Builder()
+                    .setPopUpTo(R.id.homeFragment, true)
+                    .build();
+
+            Navigation.findNavController(v)
+                    .navigate(R.id.loginFragment, null, navOptions);
+        });
     }
 }

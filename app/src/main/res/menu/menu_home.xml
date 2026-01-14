@@ -2,9 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- 👤 Edit Profile -->
     <item
         android:id="@+id/action_edit_profile"
-        android:title="Edit Profile"
+        android:title="Profile"
         android:icon="@drawable/ic_edit_24"
         app:showAsAction="always" />
+
+    <!-- 🚪 Logout  -->
+    <item
+        android:id="@+id/action_logout"
+        android:title="Logout"
+        app:showAsAction="never" />
+
 </menu>
