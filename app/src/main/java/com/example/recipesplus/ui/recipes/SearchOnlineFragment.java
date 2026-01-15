@@ -91,8 +91,10 @@ public class SearchOnlineFragment extends Fragment {
                                     instructions
                             );
 
-                            repo.add(local);
-                            Toast.makeText(requireContext(), "Saved to My Recipes", Toast.LENGTH_SHORT).show();
+                            local.setFavorite(true);
+
+                            repo.addToFavoritesOnly(local);
+                            Toast.makeText(requireContext(), "Added to Favorites", Toast.LENGTH_SHORT).show();
                             return true;
                         }));
                     });
