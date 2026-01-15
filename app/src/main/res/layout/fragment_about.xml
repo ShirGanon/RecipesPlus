@@ -10,17 +10,10 @@
         android:orientation="vertical">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="About RecipesPlus"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp"
+            android:textColor="@android:color/white"
             android:lineSpacingExtra="6dp"
             android:text="
 RecipesPlus is an application that allows users to organize and manage their personal recipe collection in a simple and structured way.

@@ -58,12 +58,17 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         }
         holder.preview.setText(preview);
 
-        // Favorite icon (display only)
-        holder.favoriteIcon.setImageResource(
-                recipe.isFavorite()
-                        ? android.R.drawable.btn_star_big_on
-                        : android.R.drawable.btn_star_big_off
-        );
+        // Favorite icon (display only for online recipes)
+        if ("online".equals(recipe.getSource())) {
+            holder.favoriteIcon.setVisibility(View.VISIBLE);
+            holder.favoriteIcon.setImageResource(
+                    recipe.isFavorite()
+                            ? android.R.drawable.btn_star_big_on
+                            : android.R.drawable.btn_star_big_off
+            );
+        } else {
+            holder.favoriteIcon.setVisibility(View.GONE);
+        }
 
         // Click → details
         holder.itemView.setOnClickListener(v -> listener.onRecipeClick(recipe));

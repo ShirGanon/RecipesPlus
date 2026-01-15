@@ -17,6 +17,7 @@ import com.example.recipesplus.data.RecipeRepository;
 import com.example.recipesplus.model.Recipe;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MyRecipesFragment extends Fragment {
 
@@ -39,7 +40,7 @@ public class MyRecipesFragment extends Fragment {
         loadAndDisplayRecipes();
         isFirstLoad = false;
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
@@ -49,10 +50,10 @@ public class MyRecipesFragment extends Fragment {
             loadAndDisplayRecipes();
         }
     }
-    
+
     private void loadAndDisplayRecipes() {
         RecipeRepository repo = RecipeRepository.getInstance();
-        
+
         // Always reload recipes when fragment is shown to ensure we have the latest data
         repo.loadRecipes(() -> {
             // Ensure we're on the main thread (Firestore callbacks should already be on main thread)
@@ -67,11 +68,15 @@ public class MyRecipesFragment extends Fragment {
     }
 
     private void updateUI(RecyclerView rv, TextView empty, List<Recipe> recipes) {
-        empty.setVisibility(recipes.isEmpty() ? View.VISIBLE : View.GONE);
-        rv.setVisibility(recipes.isEmpty() ? View.GONE : View.VISIBLE);
+        List<Recipe> manualRecipes = recipes.stream()
+                .filter(r -> "manual".equals(r.getSource()))
+                .collect(Collectors.toList());
+
+        empty.setVisibility(manualRecipes.isEmpty() ? View.VISIBLE : View.GONE);
+        rv.setVisibility(manualRecipes.isEmpty() ? View.GONE : View.VISIBLE);
 
         rv.setAdapter(new RecipeAdapter(
-                recipes,
+                manualRecipes,
                 recipe -> {
                     Bundle args = new Bundle();
                     args.putString("recipeId", recipe.getId());

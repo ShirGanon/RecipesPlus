@@ -20,12 +20,9 @@ public class RecipeRepository {
 
     private static RecipeRepository instance;
 
-    // My Recipes (manual / created)
+    // All recipes (manual/created and favorites from online)
     private final List<Recipe> recipes = new ArrayList<>();
-    
-    // Favorites (from online search)
-    private final List<Recipe> favoriteRecipes = new ArrayList<>();
-    
+
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
     private static final String TAG = "RecipeRepository";
@@ -68,7 +65,7 @@ public class RecipeRepository {
                                 if (recipe != null) {
                                     String documentId = document.getId();
                                     recipe.setId(documentId);
-                                    
+
                                     // Check for duplicates by ID before adding
                                     boolean exists = false;
                                     for (Recipe r : recipes) {
@@ -77,7 +74,7 @@ public class RecipeRepository {
                                             break;
                                         }
                                     }
-                                    
+
                                     if (!exists) {
                                         recipes.add(recipe);
                                         count++;
@@ -104,8 +101,6 @@ public class RecipeRepository {
                 });
     }
 
-    /* ===================== My Recipes ===================== */
-
     /** Returns a copy to avoid external modification */
     public List<Recipe> getAll() {
         return new ArrayList<>(recipes);
@@ -116,7 +111,7 @@ public class RecipeRepository {
      */
     public void add(Recipe recipe) {
         if (recipe == null) return;
-        
+
         String userId = getCurrentUserId();
         if (userId == null) {
             Log.w(TAG, "No user logged in, recipe not saved to Firestore");
@@ -134,15 +129,20 @@ public class RecipeRepository {
         recipeData.put("instructions", recipe.getInstructions());
         recipeData.put("favorite", recipe.isFavorite());
         recipeData.put("userId", userId);
+        recipeData.put("source", recipe.getSource());
 
         db.collection(COLLECTION_RECIPES)
-                .document(recipe.getId())
-                .set(recipeData)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Recipe saved to Firestore: " + recipe.getTitle());
+                .add(recipeData) // Use add to generate a new document ID
+                .addOnSuccessListener(documentReference -> {
+                    String newId = documentReference.getId();
+                    recipe.setId(newId);
+                    Log.d(TAG, "Recipe saved to Firestore with ID: " + newId);
+                    // No need to update the local object with ID if we reload, but good practice
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error saving recipe to Firestore", e);
+                    // Optional: remove from local list on failure
+                    recipes.remove(recipe);
                 });
     }
 
@@ -172,6 +172,7 @@ public class RecipeRepository {
         updates.put("ingredients", recipe.getIngredients());
         updates.put("instructions", recipe.getInstructions());
         updates.put("favorite", recipe.isFavorite());
+        updates.put("source", recipe.getSource());
 
         db.collection(COLLECTION_RECIPES)
                 .document(recipe.getId())
@@ -205,12 +206,6 @@ public class RecipeRepository {
                 });
     }
 
-    /**
-     * Delete recipe by ID (alias for delete method)
-     */
-    public void deleteById(String recipeId) {
-        delete(recipeId);
-    }
 
     /**
      * Toggle favorite status
@@ -232,26 +227,6 @@ public class RecipeRepository {
             recipe.setFavorite(favorite);
             update(recipe);
         }
-    }
-
-    public boolean existsByTitle(String title) {
-        if (title == null) return false;
-        String t = title.trim().toLowerCase();
-
-        for (Recipe r : recipes) {
-            if (r.getTitle() != null && r.getTitle().trim().toLowerCase().equals(t)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean addIfNotExists(Recipe recipe) {
-        if (recipe == null) return false;
-        if (existsByTitle(recipe.getTitle())) return false;
-
-        add(recipe);
-        return true;
     }
 
     public Recipe getByTitle(String title) {
@@ -283,7 +258,6 @@ public class RecipeRepository {
      */
     public void clear() {
         recipes.clear();
-        favoriteRecipes.clear();
         isLoaded = false;
     }
 
@@ -296,23 +270,5 @@ public class RecipeRepository {
             return auth.getCurrentUser().getUid();
         }
         return null;
-    }
-
-    /* ===================== Favorites ===================== */
-
-    public void addToFavoritesOnly(Recipe recipe) {
-        if (recipe == null) return;
-
-        for (Recipe r : favoriteRecipes) {
-            if (r.getTitle() != null &&
-                    r.getTitle().equalsIgnoreCase(recipe.getTitle())) {
-                return; // already favorite
-            }
-        }
-        favoriteRecipes.add(recipe);
-    }
-
-    public List<Recipe> getFavoritesOnly() {
-        return new ArrayList<>(favoriteRecipes);
     }
 }

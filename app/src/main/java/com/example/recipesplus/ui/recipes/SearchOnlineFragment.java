@@ -64,37 +64,24 @@ public class SearchOnlineFragment extends Fragment {
                             Recipe existing = repo.getByTitle(online.getTitle());
 
                             if (existing != null) {
-                                boolean updated = false;
-
-                                if (isBlank(existing.getIngredients()) && !isBlank(online.getIngredients())) {
-                                    existing.setIngredients(online.getIngredients());
-                                    updated = true;
-                                }
-
-                                if (isBlank(existing.getInstructions()) && !isBlank(instructions)) {
-                                    existing.setInstructions(instructions);
-                                    updated = true;
-                                }
-
-                                if (updated) {
+                                if (!existing.isFavorite()) {
+                                    existing.setFavorite(true);
                                     repo.update(existing);
-                                    Toast.makeText(requireContext(), "Updated recipe details", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(requireContext(), "Recipe moved to favorites.", Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(requireContext(), "Already saved", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(requireContext(), "Recipe already in favorites.", Toast.LENGTH_SHORT).show();
                                 }
-
                                 return true;
                             }
 
                             Recipe local = new Recipe(
                                     online.getTitle(),
                                     online.getIngredients(),
-                                    instructions
+                                    instructions,
+                                    "online"
                             );
 
-                            local.setFavorite(true);
-
-                            repo.addToFavoritesOnly(local);
+                            repo.add(local);
                             Toast.makeText(requireContext(), "Added to Favorites", Toast.LENGTH_SHORT).show();
                             return true;
                         }));

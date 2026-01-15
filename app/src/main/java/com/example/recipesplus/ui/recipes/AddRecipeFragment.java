@@ -66,6 +66,11 @@ public class AddRecipeFragment extends Fragment {
 
             Toast.makeText(requireContext(), "Recipe saved", Toast.LENGTH_SHORT).show();
 
+            // Clear the form
+            etTitle.setText("");
+            etIngredients.setText("");
+            etInstructions.setText("");
+
             // Navigate back to My Recipes
             Navigation.findNavController(v)
                     .navigate(R.id.action_addRecipeFragment_to_myRecipesFragment);

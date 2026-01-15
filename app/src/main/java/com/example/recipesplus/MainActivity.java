@@ -4,61 +4,86 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.recipesplus.ui.profile.EditProfileActivity;
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
 
     private NavController navController;
+    private AppBarConfiguration appBarConfiguration;
+    private TextView toolbarTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Setup toolbar as ActionBar
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Setup Navigation Controller
+        // Disable the default title
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+
+        toolbarTitle = findViewById(R.id.toolbar_title);
+
         NavHostFragment navHostFragment =
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         navController = navHostFragment.getNavController();
 
-        // Connect toolbar with navigation (title + back button)
-        NavigationUI.setupWithNavController(toolbar, navController);
+        appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.loginFragment, R.id.homeFragment)
+                .build();
 
-        // Recreate the options menu when destination changes
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            toolbarTitle.setText(destination.getLabel());
             invalidateOptionsMenu();
         });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.clear();
+        getMenuInflater().inflate(R.menu.menu_home, menu);
+        return true;
+    }
 
-        // Show menu only on Home screen
-        if (navController.getCurrentDestination() != null
-                && navController.getCurrentDestination().getId() == R.id.homeFragment) {
-            getMenuInflater().inflate(R.menu.menu_home, menu);
-            return true;
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean isHome = navController.getCurrentDestination() != null &&
+                         navController.getCurrentDestination().getId() == R.id.homeFragment;
+
+        MenuItem editProfile = menu.findItem(R.id.action_edit_profile);
+        if (editProfile != null) {
+            editProfile.setVisible(isHome);
         }
 
-        return super.onCreateOptionsMenu(menu);
+        MenuItem logout = menu.findItem(R.id.action_logout);
+        if (logout != null) {
+            logout.setVisible(isHome);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (NavigationUI.onNavDestinationSelected(item, navController)) {
+            return true;
+        }
 
         if (item.getItemId() == R.id.action_edit_profile) {
             startActivity(new Intent(this, EditProfileActivity.class));
@@ -67,15 +92,18 @@ public class MainActivity extends AppCompatActivity {
 
         if (item.getItemId() == R.id.action_logout) {
             FirebaseAuth.getInstance().signOut();
-
             NavOptions navOptions = new NavOptions.Builder()
                     .setPopUpTo(R.id.homeFragment, true)
                     .build();
-
             navController.navigate(R.id.loginFragment, null, navOptions);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
     }
 }
