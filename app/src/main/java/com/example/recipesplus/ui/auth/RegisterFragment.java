@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.recipesplus.R;
+import com.example.recipesplus.data.RecipeRepository;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterFragment extends Fragment {
@@ -59,8 +60,12 @@ public class RegisterFragment extends Fragment {
 
                         if (task.isSuccessful()) {
                             Toast.makeText(requireContext(), "Registered successfully", Toast.LENGTH_SHORT).show();
-                            Navigation.findNavController(view)
-                                    .navigate(R.id.action_registerFragment_to_homeFragment);
+                            
+                            // Load recipes from Firestore (will be empty for new user)
+                            RecipeRepository.getInstance().loadRecipes(() -> {
+                                Navigation.findNavController(view)
+                                        .navigate(R.id.action_registerFragment_to_homeFragment);
+                            });
                         } else {
                             String msg = task.getException() != null
                                     ? task.getException().getMessage()

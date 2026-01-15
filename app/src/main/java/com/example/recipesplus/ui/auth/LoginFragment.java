@@ -13,9 +13,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.recipesplus.R;
+import com.example.recipesplus.data.RecipeRepository;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginFragment extends Fragment {
@@ -33,12 +35,17 @@ public class LoginFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         auth = FirebaseAuth.getInstance();
+        NavController nav = Navigation.findNavController(view);
 
-        // Auto-login disabled: always show Login screen first
-        // if (auth.getCurrentUser() != null && Navigation.findNavController(view).getPreviousBackStackEntry() == null) {
-        //     Navigation.findNavController(view).navigate(R.id.action_loginFragment_to_homeFragment);
-        //     return;
-        // }
+        // Auto-login, but do NOT auto-login when we arrived here from another screen (e.g., Logout)
+        // When coming from Home -> Login, previousBackStackEntry exists.
+        if (auth.getCurrentUser() != null && nav.getPreviousBackStackEntry() == null) {
+            // Load recipes from Firestore before navigating
+            RecipeRepository.getInstance().loadRecipes(() -> {
+                nav.navigate(R.id.action_loginFragment_to_homeFragment);
+            });
+            return;
+        }
 
         EditText etEmail = view.findViewById(R.id.et_email);
         EditText etPassword = view.findViewById(R.id.et_password);
@@ -73,9 +80,11 @@ public class LoginFragment extends Fragment {
                                     "Logged in",
                                     Toast.LENGTH_SHORT).show();
 
-                            Navigation.findNavController(view)
-                                    .navigate(R.id.action_loginFragment_to_homeFragment);
-
+                            // Load recipes from Firestore
+                            RecipeRepository.getInstance().loadRecipes(() -> {
+                                Navigation.findNavController(view)
+                                        .navigate(R.id.action_loginFragment_to_homeFragment);
+                            });
                         } else {
                             String msg = task.getException() != null
                                     ? task.getException().getMessage()

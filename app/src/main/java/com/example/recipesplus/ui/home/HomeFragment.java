@@ -11,6 +11,7 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 
 import com.example.recipesplus.R;
+import com.example.recipesplus.data.RecipeRepository;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeFragment extends Fragment {
@@ -48,11 +49,11 @@ public class HomeFragment extends Fragment {
 
         // Logout
         view.findViewById(R.id.btn_logout).setOnClickListener(v -> {
-
             // Debug toast (remove later if you want)
             Toast.makeText(requireContext(), "Logout clicked", Toast.LENGTH_SHORT).show();
 
             FirebaseAuth.getInstance().signOut();
+            RecipeRepository.getInstance().clear();
 
             NavOptions navOptions = new NavOptions.Builder()
                     .setPopUpTo(R.id.homeFragment, true)
@@ -60,13 +61,12 @@ public class HomeFragment extends Fragment {
 
             Navigation.findNavController(v)
                     .navigate(R.id.loginFragment, null, navOptions);
-
         });
+
         // About
         view.findViewById(R.id.btn_about).setOnClickListener(v ->
                 Navigation.findNavController(v)
                         .navigate(R.id.action_homeFragment_to_aboutFragment)
         );
-
     }
 }
