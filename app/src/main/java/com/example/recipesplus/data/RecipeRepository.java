@@ -19,7 +19,13 @@ import java.util.Map;
 public class RecipeRepository {
 
     private static RecipeRepository instance;
+
+    // My Recipes (manual / created)
     private final List<Recipe> recipes = new ArrayList<>();
+    
+    // Favorites (from online search)
+    private final List<Recipe> favoriteRecipes = new ArrayList<>();
+    
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
     private static final String TAG = "RecipeRepository";
@@ -98,9 +104,9 @@ public class RecipeRepository {
                 });
     }
 
-    /**
-     * Returns a copy to avoid external modification
-     */
+    /* ===================== My Recipes ===================== */
+
+    /** Returns a copy to avoid external modification */
     public List<Recipe> getAll() {
         return new ArrayList<>(recipes);
     }
@@ -277,6 +283,7 @@ public class RecipeRepository {
      */
     public void clear() {
         recipes.clear();
+        favoriteRecipes.clear();
         isLoaded = false;
     }
 
@@ -289,5 +296,23 @@ public class RecipeRepository {
             return auth.getCurrentUser().getUid();
         }
         return null;
+    }
+
+    /* ===================== Favorites ===================== */
+
+    public void addToFavoritesOnly(Recipe recipe) {
+        if (recipe == null) return;
+
+        for (Recipe r : favoriteRecipes) {
+            if (r.getTitle() != null &&
+                    r.getTitle().equalsIgnoreCase(recipe.getTitle())) {
+                return; // already favorite
+            }
+        }
+        favoriteRecipes.add(recipe);
+    }
+
+    public List<Recipe> getFavoritesOnly() {
+        return new ArrayList<>(favoriteRecipes);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.recipesplus.ui.recipes;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -20,38 +21,62 @@ import java.util.List;
 
 public class FavoritesFragment extends Fragment {
 
+    private static final String TAG = "FavoritesFragment";
+    private RecyclerView recyclerView;
+    private TextView emptyText;
+    private boolean isFirstLoad = true;
+
     public FavoritesFragment() {
         super(R.layout.fragment_favorites);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
-        RecyclerView recyclerView = view.findViewById(R.id.rv_favorites);
-        TextView emptyText = view.findViewById(R.id.tv_empty_favorites);
+        recyclerView = view.findViewById(R.id.rv_favorites);
+        emptyText = view.findViewById(R.id.tv_empty_favorites);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
+        loadAndDisplayFavorites();
+        isFirstLoad = false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Only refresh if this is not the first load (to avoid double loading)
+        // This ensures we refresh when coming back from other screens
+        if (!isFirstLoad && recyclerView != null && emptyText != null) {
+            loadAndDisplayFavorites();
+        }
+    }
+
+    private void loadAndDisplayFavorites() {
         RecipeRepository repo = RecipeRepository.getInstance();
         
-        // Load recipes if not already loaded
-        if (!repo.isLoaded()) {
-            repo.loadRecipes(() -> {
-                updateUI(recyclerView, emptyText, repo.getAll());
-            });
-        } else {
-            updateUI(recyclerView, emptyText, repo.getAll());
-        }
+        // Always reload recipes when fragment is shown to ensure we have the latest data
+        repo.loadRecipes(() -> {
+            // Ensure we're on the main thread
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    List<Recipe> allRecipes = repo.getAll();
+                    updateUI(recyclerView, emptyText, allRecipes);
+                });
+            }
+        });
     }
 
     private void updateUI(RecyclerView recyclerView, TextView emptyText, List<Recipe> allRecipes) {
         List<Recipe> favorites = new ArrayList<>();
 
+        // Filter recipes by favorite status (synced to Firestore)
         for (Recipe recipe : allRecipes) {
             if (recipe.isFavorite()) {
                 favorites.add(recipe);
             }
         }
+
+        Log.d(TAG, "Displaying " + favorites.size() + " favorite recipes");
 
         if (favorites.isEmpty()) {
             emptyText.setVisibility(View.VISIBLE);

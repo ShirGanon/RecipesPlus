@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,7 +16,6 @@ import androidx.navigation.Navigation;
 
 import com.example.recipesplus.R;
 import com.example.recipesplus.data.RecipeRepository;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterFragment extends Fragment {
@@ -34,8 +34,8 @@ public class RegisterFragment extends Fragment {
 
         auth = FirebaseAuth.getInstance();
 
-        TextInputEditText etEmail = view.findViewById(R.id.et_email);
-        TextInputEditText etPassword = view.findViewById(R.id.et_password);
+        EditText etEmail = view.findViewById(R.id.et_email);
+        EditText etPassword = view.findViewById(R.id.et_password);
         Button btnRegister = view.findViewById(R.id.btn_register);
 
         btnRegister.setOnClickListener(v -> {
