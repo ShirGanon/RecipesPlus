@@ -77,6 +77,7 @@ public class SearchOnlineFragment extends Fragment {
                                 }
 
                                 if (updated) {
+                                    repo.update(existing);
                                     Toast.makeText(requireContext(), "Updated recipe details", Toast.LENGTH_SHORT).show();
                                 } else {
                                     Toast.makeText(requireContext(), "Already saved", Toast.LENGTH_SHORT).show();

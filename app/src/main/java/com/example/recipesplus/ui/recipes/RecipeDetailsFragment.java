@@ -41,7 +41,7 @@ public class RecipeDetailsFragment extends Fragment {
             return;
         }
 
-        Recipe recipe = RecipeRepository.getInstance().getById(recipeId);
+        final Recipe recipe = RecipeRepository.getInstance().getById(recipeId);
         if (recipe == null) {
             tvTitle.setText("Recipe not found");
             safeDisableButtons(btnFavorite, btnDelete);

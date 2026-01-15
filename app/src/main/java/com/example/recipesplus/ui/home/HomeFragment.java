@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.recipesplus.R;
+import com.example.recipesplus.data.RecipeRepository;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeFragment extends Fragment {
 
@@ -39,5 +41,13 @@ public class HomeFragment extends Fragment {
                 Navigation.findNavController(v)
                         .navigate(R.id.action_homeFragment_to_favoritesFragment)
         );
+
+        // Logout
+        view.findViewById(R.id.btn_logout).setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
+            RecipeRepository.getInstance().clear();
+            Navigation.findNavController(v)
+                    .navigate(R.id.action_homeFragment_to_loginFragment);
+        });
     }
 }

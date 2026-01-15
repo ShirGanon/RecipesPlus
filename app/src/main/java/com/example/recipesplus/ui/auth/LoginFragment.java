@@ -15,6 +15,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.recipesplus.R;
+import com.example.recipesplus.data.RecipeRepository;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -38,7 +39,10 @@ public class LoginFragment extends Fragment {
         // Auto-login, but do NOT auto-login when we arrived here from another screen (e.g., Logout)
         // When coming from Home -> Login, previousBackStackEntry exists.
         if (auth.getCurrentUser() != null && nav.getPreviousBackStackEntry() == null) {
-            nav.navigate(R.id.action_loginFragment_to_homeFragment);
+            // Load recipes from Firestore before navigating
+            RecipeRepository.getInstance().loadRecipes(() -> {
+                nav.navigate(R.id.action_loginFragment_to_homeFragment);
+            });
             return;
         }
 
@@ -70,8 +74,12 @@ public class LoginFragment extends Fragment {
 
                         if (task.isSuccessful()) {
                             Toast.makeText(requireContext(), "Logged in", Toast.LENGTH_SHORT).show();
-                            Navigation.findNavController(view)
-                                    .navigate(R.id.action_loginFragment_to_homeFragment);
+                            
+                            // Load recipes from Firestore
+                            RecipeRepository.getInstance().loadRecipes(() -> {
+                                Navigation.findNavController(view)
+                                        .navigate(R.id.action_loginFragment_to_homeFragment);
+                            });
                         } else {
                             String msg = task.getException() != null
                                     ? task.getException().getMessage()

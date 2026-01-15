@@ -32,7 +32,19 @@ public class FavoritesFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        List<Recipe> allRecipes = RecipeRepository.getInstance().getAll();
+        RecipeRepository repo = RecipeRepository.getInstance();
+        
+        // Load recipes if not already loaded
+        if (!repo.isLoaded()) {
+            repo.loadRecipes(() -> {
+                updateUI(recyclerView, emptyText, repo.getAll());
+            });
+        } else {
+            updateUI(recyclerView, emptyText, repo.getAll());
+        }
+    }
+
+    private void updateUI(RecyclerView recyclerView, TextView emptyText, List<Recipe> allRecipes) {
         List<Recipe> favorites = new ArrayList<>();
 
         for (Recipe recipe : allRecipes) {
@@ -55,7 +67,7 @@ public class FavoritesFragment extends Fragment {
                                 Bundle args = new Bundle();
                                 args.putString("recipeId", recipe.getId());
 
-                                Navigation.findNavController(view)
+                                Navigation.findNavController(requireView())
                                         .navigate(
                                                 R.id.action_favoritesFragment_to_recipeDetailsFragment,
                                                 args
