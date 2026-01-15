@@ -15,7 +15,6 @@ import com.example.recipesplus.R;
 import com.example.recipesplus.data.RecipeRepository;
 import com.example.recipesplus.model.Recipe;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FavoritesFragment extends Fragment {
@@ -32,14 +31,9 @@ public class FavoritesFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        List<Recipe> allRecipes = RecipeRepository.getInstance().getAll();
-        List<Recipe> favorites = new ArrayList<>();
-
-        for (Recipe recipe : allRecipes) {
-            if (recipe.isFavorite()) {
-                favorites.add(recipe);
-            }
-        }
+        // ⭐️ משתמשים ברשימת Favorites הייעודית
+        List<Recipe> favorites =
+                RecipeRepository.getInstance().getFavoritesOnly();
 
         if (favorites.isEmpty()) {
             emptyText.setVisibility(View.VISIBLE);

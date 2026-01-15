@@ -6,16 +6,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.recipesplus.R;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginFragment extends Fragment {
@@ -33,22 +33,20 @@ public class LoginFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         auth = FirebaseAuth.getInstance();
-        NavController nav = Navigation.findNavController(view);
 
-        // Auto-login, but do NOT auto-login when we arrived here from another screen (e.g., Logout)
-        // When coming from Home -> Login, previousBackStackEntry exists.
-        if (auth.getCurrentUser() != null && nav.getPreviousBackStackEntry() == null) {
-            nav.navigate(R.id.action_loginFragment_to_homeFragment);
-            return;
-        }
+        // Auto-login disabled: always show Login screen first
+        // if (auth.getCurrentUser() != null && Navigation.findNavController(view).getPreviousBackStackEntry() == null) {
+        //     Navigation.findNavController(view).navigate(R.id.action_loginFragment_to_homeFragment);
+        //     return;
+        // }
 
-        TextInputEditText etEmail = view.findViewById(R.id.et_email);
-        TextInputEditText etPassword = view.findViewById(R.id.et_password);
+        EditText etEmail = view.findViewById(R.id.et_email);
+        EditText etPassword = view.findViewById(R.id.et_password);
 
         Button btnLogin = view.findViewById(R.id.btn_login);
-        Button btnGoRegister = view.findViewById(R.id.btn_go_register);
+        TextView tvRegister = view.findViewById(R.id.tv_register);
 
-        btnGoRegister.setOnClickListener(v ->
+        tvRegister.setOnClickListener(v ->
                 Navigation.findNavController(v)
                         .navigate(R.id.action_loginFragment_to_registerFragment)
         );
@@ -58,7 +56,9 @@ public class LoginFragment extends Fragment {
             String password = etPassword.getText() != null ? etPassword.getText().toString() : "";
 
             if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-                Toast.makeText(requireContext(), "Email and password are required", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(),
+                        "Email and password are required",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -69,14 +69,21 @@ public class LoginFragment extends Fragment {
                         btnLogin.setEnabled(true);
 
                         if (task.isSuccessful()) {
-                            Toast.makeText(requireContext(), "Logged in", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(requireContext(),
+                                    "Logged in",
+                                    Toast.LENGTH_SHORT).show();
+
                             Navigation.findNavController(view)
                                     .navigate(R.id.action_loginFragment_to_homeFragment);
+
                         } else {
                             String msg = task.getException() != null
                                     ? task.getException().getMessage()
                                     : "Login failed";
-                            Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
+
+                            Toast.makeText(requireContext(),
+                                    msg,
+                                    Toast.LENGTH_LONG).show();
                         }
                     });
         });

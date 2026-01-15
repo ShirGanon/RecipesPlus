@@ -3,7 +3,6 @@ package com.example.recipesplus.data;
 import com.example.recipesplus.model.Recipe;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -14,15 +13,20 @@ public class RecipeRepository {
 
     private static RecipeRepository instance;
 
+    // My Recipes (manual / created)
     private final List<Recipe> recipes = new ArrayList<>();
 
-    private RecipeRepository() {}
+    // Favorites (from online search)
+    private final List<Recipe> favoriteRecipes = new ArrayList<>();
 
+    private RecipeRepository() {}
 
     public static synchronized RecipeRepository getInstance() {
         if (instance == null) instance = new RecipeRepository();
         return instance;
     }
+
+    /* ===================== My Recipes ===================== */
 
     /** Returns a copy to avoid external modification */
     public List<Recipe> getAll() {
@@ -34,20 +38,19 @@ public class RecipeRepository {
         recipes.add(recipe);
     }
 
-    /** === NEW: duplication protection by title (case-insensitive) === */
     public boolean existsByTitle(String title) {
         if (title == null) return false;
         String t = title.trim().toLowerCase();
 
         for (Recipe r : recipes) {
-            if (r.getTitle() != null && r.getTitle().trim().toLowerCase().equals(t)) {
+            if (r.getTitle() != null &&
+                    r.getTitle().trim().toLowerCase().equals(t)) {
                 return true;
             }
         }
         return false;
     }
 
-    /** === NEW: use this from SearchOnline + AddRecipe to avoid duplicates === */
     public boolean addIfNotExists(Recipe recipe) {
         if (recipe == null) return false;
         if (existsByTitle(recipe.getTitle())) return false;
@@ -80,4 +83,21 @@ public class RecipeRepository {
         return null;
     }
 
+    /* ===================== Favorites ===================== */
+
+    public void addToFavoritesOnly(Recipe recipe) {
+        if (recipe == null) return;
+
+        for (Recipe r : favoriteRecipes) {
+            if (r.getTitle() != null &&
+                    r.getTitle().equalsIgnoreCase(recipe.getTitle())) {
+                return; // already favorite
+            }
+        }
+        favoriteRecipes.add(recipe);
+    }
+
+    public List<Recipe> getFavoritesOnly() {
+        return new ArrayList<>(favoriteRecipes);
+    }
 }
