@@ -130,6 +130,7 @@ public class RecipeRepository {
         recipeData.put("favorite", recipe.isFavorite());
         recipeData.put("userId", userId);
         recipeData.put("source", recipe.getSource());
+        recipeData.put("imageUrl", recipe.getImageUrl());
 
         db.collection(COLLECTION_RECIPES)
                 .add(recipeData) // Use add to generate a new document ID
@@ -137,11 +138,9 @@ public class RecipeRepository {
                     String newId = documentReference.getId();
                     recipe.setId(newId);
                     Log.d(TAG, "Recipe saved to Firestore with ID: " + newId);
-                    // No need to update the local object with ID if we reload, but good practice
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error saving recipe to Firestore", e);
-                    // Optional: remove from local list on failure
                     recipes.remove(recipe);
                 });
     }
@@ -173,6 +172,7 @@ public class RecipeRepository {
         updates.put("instructions", recipe.getInstructions());
         updates.put("favorite", recipe.isFavorite());
         updates.put("source", recipe.getSource());
+        updates.put("imageUrl", recipe.getImageUrl());
 
         db.collection(COLLECTION_RECIPES)
                 .document(recipe.getId())
