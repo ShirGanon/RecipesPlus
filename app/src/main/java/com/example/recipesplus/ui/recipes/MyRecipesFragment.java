@@ -77,12 +77,24 @@ public class MyRecipesFragment extends Fragment {
 
         rv.setAdapter(new RecipeAdapter(
                 manualRecipes,
-                recipe -> {
-                    Bundle args = new Bundle();
-                    args.putString("recipeId", recipe.getId());
+                new RecipeAdapter.OnRecipeClickListener() {
+                    @Override
+                    public void onRecipeClick(Recipe recipe) {
+                        Bundle args = new Bundle();
+                        args.putString("recipeId", recipe.getId());
 
-                    Navigation.findNavController(requireView())
-                            .navigate(R.id.action_myRecipesFragment_to_recipeDetailsFragment, args);
+                        Navigation.findNavController(requireView())
+                                .navigate(R.id.action_myRecipesFragment_to_recipeDetailsFragment, args);
+                    }
+
+                    @Override
+                    public void onEditClick(Recipe recipe) {
+                        Bundle args = new Bundle();
+                        args.putSerializable("recipe", recipe);
+
+                        Navigation.findNavController(requireView())
+                                .navigate(R.id.action_myRecipesFragment_to_addRecipeFragment, args);
+                    }
                 }
         ));
     }

@@ -1,8 +1,9 @@
 package com.example.recipesplus.model;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Recipe {
+public class Recipe implements Serializable {
     private String id;
     private String title;
     private String ingredients;

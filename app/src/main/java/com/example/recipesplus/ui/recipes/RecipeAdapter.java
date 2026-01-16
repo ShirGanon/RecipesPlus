@@ -18,6 +18,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
     public interface OnRecipeClickListener {
         void onRecipeClick(Recipe recipe);
+        void onEditClick(Recipe recipe);
     }
 
     private final List<Recipe> recipes;
@@ -70,8 +71,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             holder.favoriteIcon.setVisibility(View.GONE);
         }
 
-        // Click → details
+        // Click -> details
         holder.itemView.setOnClickListener(v -> listener.onRecipeClick(recipe));
+
+        // Edit click
+        holder.editIcon.setOnClickListener(v -> listener.onEditClick(recipe));
     }
 
     @Override
@@ -84,6 +88,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         TextView title;
         TextView preview;
         ImageView favoriteIcon;
+        ImageView editIcon;
 
         public RecipeViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -91,6 +96,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             title = itemView.findViewById(R.id.tv_recipe_title);
             preview = itemView.findViewById(R.id.tv_recipe_preview);
             favoriteIcon = itemView.findViewById(R.id.iv_favorite);
+            editIcon = itemView.findViewById(R.id.iv_edit);
         }
     }
 }

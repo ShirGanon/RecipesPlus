@@ -18,6 +18,8 @@ import com.example.recipesplus.model.Recipe;
 
 public class AddRecipeFragment extends Fragment {
 
+    private Recipe existingRecipe = null;
+
     public AddRecipeFragment() {
         super(R.layout.fragment_add_recipe);
     }
@@ -32,6 +34,14 @@ public class AddRecipeFragment extends Fragment {
 
         // Save button
         Button btnSave = view.findViewById(R.id.btn_save_recipe);
+
+        // Check if we are editing an existing recipe
+        if (getArguments() != null && getArguments().containsKey("recipe")) {
+            existingRecipe = (Recipe) getArguments().getSerializable("recipe");
+            etTitle.setText(existingRecipe.getTitle());
+            etIngredients.setText(existingRecipe.getIngredients());
+            etInstructions.setText(existingRecipe.getInstructions());
+        }
 
         btnSave.setOnClickListener(v -> {
             String title = etTitle.getText().toString().trim();
@@ -57,23 +67,22 @@ public class AddRecipeFragment extends Fragment {
                 return;
             }
 
-            // Create Recipe using the existing constructor
-            Recipe recipe = new Recipe(title, ingredients, instructions);
-            recipe.setFavorite(false);
-
-            // Save recipe to repository
-            RecipeRepository.getInstance().add(recipe);
-
-            Toast.makeText(requireContext(), "Recipe saved", Toast.LENGTH_SHORT).show();
-
-            // Clear the form
-            etTitle.setText("");
-            etIngredients.setText("");
-            etInstructions.setText("");
+            if (existingRecipe != null) {
+                // Update existing recipe
+                existingRecipe.setTitle(title);
+                existingRecipe.setIngredients(ingredients);
+                existingRecipe.setInstructions(instructions);
+                RecipeRepository.getInstance().update(existingRecipe);
+                Toast.makeText(requireContext(), "Recipe updated", Toast.LENGTH_SHORT).show();
+            } else {
+                // Create new recipe
+                Recipe recipe = new Recipe(title, ingredients, instructions);
+                RecipeRepository.getInstance().add(recipe);
+                Toast.makeText(requireContext(), "Recipe saved", Toast.LENGTH_SHORT).show();
+            }
 
             // Navigate back to My Recipes
-            Navigation.findNavController(v)
-                    .navigate(R.id.action_addRecipeFragment_to_myRecipesFragment);
+            Navigation.findNavController(v).popBackStack();
         });
     }
 }
