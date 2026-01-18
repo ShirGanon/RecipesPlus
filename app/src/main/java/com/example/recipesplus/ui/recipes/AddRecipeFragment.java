@@ -30,7 +30,6 @@ public class AddRecipeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         EditText etTitle = view.findViewById(R.id.et_title);
-        EditText etCategory = view.findViewById(R.id.et_category);
         EditText etIngredients = view.findViewById(R.id.et_ingredients);
         EditText etInstructions = view.findViewById(R.id.et_instructions);
 
@@ -45,25 +44,19 @@ public class AddRecipeFragment extends Fragment {
             String title = etTitle.getText().toString().trim();
             String ingredients = etIngredients.getText().toString().trim();
             String instructions = etInstructions.getText().toString().trim();
-            String customCategory = etCategory.getText().toString().trim();
 
             if (TextUtils.isEmpty(title)) {
                 etTitle.setError("Title is required");
                 return;
             }
 
-            // This is the crucial part that gathers the categories
             List<String> categories = new ArrayList<>();
-            if (!customCategory.isEmpty()) {
-                categories.add(customCategory);
-            }
             if (cbMain.isChecked()) categories.add("Main Courses");
             if (cbDesserts.isChecked()) categories.add("Desserts");
             if (cbVegan.isChecked()) categories.add("Vegan / Vegetarian");
             if (cbBreakfast.isChecked()) categories.add("Breakfast");
 
             Recipe recipe = new Recipe(title, ingredients, instructions);
-            // This line ensures the categories are set on the recipe object before saving
             recipe.setCategories(categories);
 
             RecipeRepository.getInstance().add(recipe, new RecipeRepository.RecipeCallback() {
@@ -72,7 +65,6 @@ public class AddRecipeFragment extends Fragment {
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
                             Toast.makeText(requireContext(), "Recipe saved!", Toast.LENGTH_SHORT).show();
-                            // Navigate back only after the recipe is successfully saved
                             Navigation.findNavController(v).navigate(R.id.action_addRecipeFragment_to_myRecipesFragment);
                         });
                     }

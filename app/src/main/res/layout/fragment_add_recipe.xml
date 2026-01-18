@@ -29,20 +29,10 @@
             android:backgroundTint="@android:color/black"
             android:layout_marginBottom="12dp"/>
 
-        <EditText
-            android:id="@+id/et_category"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="New Category"
-            android:textColor="@android:color/black"
-            android:textColorHint="@android:color/darker_gray"
-            android:backgroundTint="@android:color/black"
-            android:layout_marginBottom="12dp"/>
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Or select from existing categories"
+            android:text="Categories"
             android:textStyle="bold"
             android:textColor="@android:color/black"
             android:layout_marginBottom="8dp"/>
