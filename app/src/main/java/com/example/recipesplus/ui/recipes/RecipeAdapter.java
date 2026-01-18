@@ -6,12 +6,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.NonNull;import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.recipesplus.R;
 import com.example.recipesplus.model.Recipe;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
@@ -20,12 +20,19 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         void onRecipeClick(Recipe recipe);
     }
 
-    private final List<Recipe> recipes;
+    private List<Recipe> recipes;
     private final OnRecipeClickListener listener;
 
     public RecipeAdapter(List<Recipe> recipes, OnRecipeClickListener listener) {
         this.recipes = recipes;
         this.listener = listener;
+    }
+
+    // This method will safely update the list of recipes and refresh the display.
+    public void updateRecipes(List<Recipe> newRecipes) {
+        this.recipes.clear();
+        this.recipes.addAll(newRecipes);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -40,10 +47,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     public void onBindViewHolder(@NonNull RecipeViewHolder holder, int position) {
         Recipe recipe = recipes.get(position);
 
-        // Title
         holder.title.setText(recipe.getTitle());
 
-        // Preview: ingredients first, fallback to instructions
         String preview;
         if (recipe.getIngredients() != null && !recipe.getIngredients().trim().isEmpty()) {
             preview = recipe.getIngredients().trim();
@@ -58,7 +63,6 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         }
         holder.preview.setText(preview);
 
-        // Favorite icon (display only for online recipes)
         if ("online".equals(recipe.getSource())) {
             holder.favoriteIcon.setVisibility(View.VISIBLE);
             holder.favoriteIcon.setImageResource(
@@ -70,7 +74,6 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             holder.favoriteIcon.setVisibility(View.GONE);
         }
 
-        // Click → details
         holder.itemView.setOnClickListener(v -> listener.onRecipeClick(recipe));
     }
 
