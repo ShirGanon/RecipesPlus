@@ -56,6 +56,12 @@ public class HomeFragment extends Fragment {
                         .navigate(R.id.action_homeFragment_to_searchOnlineFragment)
         );
 
+        // Search by Ingredients
+        view.findViewById(R.id.btn_search_by_ingredients).setOnClickListener(v ->
+                Navigation.findNavController(v)
+                        .navigate(R.id.action_homeFragment_to_searchByIngredientsFragment)
+        );
+
         // Logout
         view.findViewById(R.id.btn_logout).setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();

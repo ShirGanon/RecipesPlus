@@ -27,7 +27,7 @@ public class Recipe {
         this.title = title;
         this.ingredients = ingredients;
         this.instructions = instructions;
-        this.favorite = false;
+        this.favorite = false; // Set favorite to false
         this.source = "manual"; // Ensure source is "manual"
         this.categories = new ArrayList<>();
     }
@@ -38,7 +38,9 @@ public class Recipe {
         this.title = title;
         this.ingredients = ingredients;
         this.instructions = instructions;
-        this.favorite = true;
+        // --- FIX: Online recipes should NOT be favorites by default ---
+        this.favorite = false;
+        // --- END FIX ---
         this.source = source; // Set source to "online"
         this.categories = new ArrayList<>();
     }
