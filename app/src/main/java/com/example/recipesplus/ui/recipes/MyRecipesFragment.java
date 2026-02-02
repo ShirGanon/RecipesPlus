@@ -26,7 +26,7 @@ public class MyRecipesFragment extends Fragment {
     private RecyclerView rv;
     private TextView empty;
     private RecipeAdapter adapter;
-    private List<Recipe> allManualRecipes = new ArrayList<>();
+    private List<Recipe> allRecipes = new ArrayList<>();
     private ChipGroup chipGroup;
 
     public MyRecipesFragment() {
@@ -66,10 +66,11 @@ public class MyRecipesFragment extends Fragment {
         RecipeRepository.getInstance().loadRecipes(() -> {
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    // Get all "manual" recipes from the repository.
-                    allManualRecipes = RecipeRepository.getInstance().getAll().stream()
-                            .filter(r -> "manual".equals(r.getSource()))
-                            .collect(Collectors.toList());
+                    // --- FIX START: REMOVED THE INCORRECT FILTER ---
+                    // This now gets ALL recipes from the repository.
+                    allRecipes = RecipeRepository.getInstance().getAll();
+                    // --- FIX END ---
+
                     // Filter and display the recipes.
                     filterAndDisplayRecipes();
                 });
@@ -82,12 +83,12 @@ public class MyRecipesFragment extends Fragment {
         int checkedChipId = chipGroup.getCheckedChipId();
 
         if (checkedChipId == View.NO_ID || checkedChipId == R.id.chip_all) {
-            filteredList.addAll(allManualRecipes);
+            filteredList.addAll(allRecipes);
         } else {
             Chip selectedChip = chipGroup.findViewById(checkedChipId);
             if (selectedChip != null) {
                 String category = selectedChip.getText().toString();
-                for (Recipe recipe : allManualRecipes) {
+                for (Recipe recipe : allRecipes) {
                     // Safe check for categories.
                     if (recipe.getCategories() != null && recipe.getCategories().contains(category)) {
                         filteredList.add(recipe);
@@ -95,7 +96,7 @@ public class MyRecipesFragment extends Fragment {
                 }
             } else {
                 // If somehow the chip is not found, default to showing all.
-                filteredList.addAll(allManualRecipes);
+                filteredList.addAll(allRecipes);
             }
         }
 

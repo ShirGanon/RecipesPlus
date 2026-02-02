@@ -75,7 +75,7 @@ public class SearchOnlineFragment extends Fragment {
                 return;
             }
 
-            new SpoonacularService().search(requireContext(), q, new SpoonacularService.Callback() {
+            new SpoonacularService().search(requireContext(), q, new SpoonacularService.RecipeCallback() {
                 @Override
                 public void onSuccess(List<OnlineRecipe> recipes) {
                     if (getActivity() == null) return;

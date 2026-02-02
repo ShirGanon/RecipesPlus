@@ -12,13 +12,11 @@ public class Recipe {
     private boolean favorite;
     private String source; // "manual" or "online"
 
-    // merge: feature/categories + master
     private List<String> categories;
     private String imageUrl;
 
     // Default constructor for Firestore
     public Recipe() {
-        // NOTE: Firestore will override fields via setters/reflection.
         // If you prefer Firestore doc id as the true id, you can set id=null here.
         this.id = UUID.randomUUID().toString();
         this.favorite = false;
@@ -46,9 +44,8 @@ public class Recipe {
         this.ingredients = ingredients;
         this.instructions = instructions;
 
-        // שים לב: כרגע אתה מסמן online recipe כ-favorite=true אוטומטית.
-        // אם זה לא בכוונה - שנה ל-false.
-        this.favorite = true;
+        // Online recipes should NOT be favorites by default
+        this.favorite = false;
 
         this.source = source; // e.g. "online"
         this.categories = new ArrayList<>();
