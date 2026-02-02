@@ -19,7 +19,6 @@ import com.google.android.material.chip.ChipGroup;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MyRecipesFragment extends Fragment {
 
@@ -41,70 +40,56 @@ public class MyRecipesFragment extends Fragment {
 
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // Initialize adapter with an empty list.
-        adapter = new RecipeAdapter(new ArrayList<>(), recipe -> {
-            Bundle args = new Bundle();
-            args.putString("recipeId", recipe.getId());
-            Navigation.findNavController(requireView()).navigate(R.id.action_myRecipesFragment_to_recipeDetailsFragment, args);
+        adapter = new RecipeAdapter(new ArrayList<>(), new RecipeAdapter.OnRecipeClickListener() {
+            @Override
+            public void onRecipeClick(Recipe recipe) {
+                Bundle args = new Bundle();
+                args.putString("recipeId", recipe.getId());
+                Navigation.findNavController(requireView())
+                        .navigate(R.id.action_myRecipesFragment_to_recipeDetailsFragment, args);
+            }
+
+            @Override
+            public void onEditClick(Recipe recipe) {
+                Bundle args = new Bundle();
+                args.putSerializable("recipe", recipe);
+                Navigation.findNavController(requireView())
+                        .navigate(R.id.action_myRecipesFragment_to_addRecipeFragment, args);
+            }
         });
+
         rv.setAdapter(adapter);
 
-        chipGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            // When a chip is clicked, filter the list.
-            filterAndDisplayRecipes();
-        });
+        chipGroup.setOnCheckedChangeListener((group, id) -> filterAndDisplay());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // Load fresh data every time the screen is shown.
-        loadRecipes();
-    }
-
-    private void loadRecipes() {
         RecipeRepository.getInstance().loadRecipes(() -> {
-            if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    // --- FIX START: REMOVED THE INCORRECT FILTER ---
-                    // This now gets ALL recipes from the repository.
-                    allRecipes = RecipeRepository.getInstance().getAll();
-                    // --- FIX END ---
-
-                    // Filter and display the recipes.
-                    filterAndDisplayRecipes();
-                });
-            }
+            allRecipes = RecipeRepository.getInstance().getAll();
+            filterAndDisplay();
         });
     }
 
-    private void filterAndDisplayRecipes() {
-        List<Recipe> filteredList = new ArrayList<>();
-        int checkedChipId = chipGroup.getCheckedChipId();
+    private void filterAndDisplay() {
+        List<Recipe> filtered = new ArrayList<>();
+        int id = chipGroup.getCheckedChipId();
 
-        if (checkedChipId == View.NO_ID || checkedChipId == R.id.chip_all) {
-            filteredList.addAll(allRecipes);
+        if (id == View.NO_ID || id == R.id.chip_all) {
+            filtered.addAll(allRecipes);
         } else {
-            Chip selectedChip = chipGroup.findViewById(checkedChipId);
-            if (selectedChip != null) {
-                String category = selectedChip.getText().toString();
-                for (Recipe recipe : allRecipes) {
-                    // Safe check for categories.
-                    if (recipe.getCategories() != null && recipe.getCategories().contains(category)) {
-                        filteredList.add(recipe);
-                    }
-                }
-            } else {
-                // If somehow the chip is not found, default to showing all.
-                filteredList.addAll(allRecipes);
+            Chip chip = chipGroup.findViewById(id);
+            String cat = chip.getText().toString();
+            for (Recipe r : allRecipes) {
+                if (r.getCategories() != null && r.getCategories().contains(cat))
+                    filtered.add(r);
             }
         }
 
-        // Update the adapter with the final list.
-        adapter.updateRecipes(filteredList);
+        adapter.updateRecipes(filtered);
 
-        // Show or hide the "No recipes yet" text.
-        empty.setVisibility(filteredList.isEmpty() ? View.VISIBLE : View.GONE);
-        rv.setVisibility(filteredList.isEmpty() ? View.GONE : View.VISIBLE);
+        empty.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
+        rv.setVisibility(filtered.isEmpty() ? View.GONE : View.VISIBLE);
     }
 }

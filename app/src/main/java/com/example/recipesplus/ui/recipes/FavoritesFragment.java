@@ -74,11 +74,19 @@ public class FavoritesFragment extends Fragment {
             recyclerView.setAdapter(
                     new RecipeAdapter(
                             favorites,
-                            recipe -> {
-                                Bundle args = new Bundle();
-                                args.putString("recipeId", recipe.getId());
-                                Navigation.findNavController(requireView())
-                                        .navigate(R.id.action_favoritesFragment_to_recipeDetailsFragment, args);
+                            new RecipeAdapter.OnRecipeClickListener() {
+                                @Override
+                                public void onRecipeClick(Recipe recipe) {
+                                    Bundle args = new Bundle();
+                                    args.putString("recipeId", recipe.getId());
+                                    Navigation.findNavController(requireView())
+                                            .navigate(R.id.action_favoritesFragment_to_recipeDetailsFragment, args);
+                                }
+
+                                @Override
+                                public void onEditClick(Recipe recipe) {
+                                    // Not applicable for favorites, do nothing.
+                                }
                             }
                     )
             );

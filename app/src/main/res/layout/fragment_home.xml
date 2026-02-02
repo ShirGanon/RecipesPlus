@@ -3,96 +3,127 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="24dp">
+    android:layout_height="match_parent">
 
-    <!-- Title -->
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/bg_menu_page"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/tv_home_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Home"
-        android:textSize="22sp"
+        android:layout_marginTop="140dp"
+        android:fontFamily="cursive"
+        android:text="Menu"
+        android:textColor="@android:color/black"
+        android:textSize="48sp"
         android:textStyle="bold"
-        android:textColor="@android:color/white"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Add Recipe -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_add_recipe"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Add Recipe"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@+id/tv_home_title"
+        android:text="Add Recipe"
+        app:backgroundTint="#FFA500"
+        app:cornerRadius="22dp"
+        app:layout_constraintTop_toBottomOf="@id/tv_home_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- My Recipes -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_my_recipes"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="My Recipes"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@+id/btn_add_recipe"
+        android:text="My Recipes"
+        app:backgroundTint="#FFA500"
+        app:cornerRadius="22dp"
+        app:layout_constraintTop_toBottomOf="@id/btn_add_recipe"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Favorites -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_favorites"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Favorites"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@+id/btn_my_recipes"
+        android:text="Favorites"
+        app:backgroundTint="#FFA500"
+        app:cornerRadius="22dp"
+        app:layout_constraintTop_toBottomOf="@id/btn_my_recipes"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Search Online -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_search_online"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Search Recipes Online"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@+id/btn_favorites"
+        android:text="Search Recipes Online"
+        app:backgroundTint="#FFA500"
+        app:cornerRadius="22dp"
+        app:layout_constraintTop_toBottomOf="@id/btn_favorites"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Search by Ingredients -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_search_by_ingredients"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Search by Ingredients"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@+id/btn_search_online"
+        android:text="Search by Ingredients"
+        app:backgroundTint="#FFA500"
+        app:cornerRadius="22dp"
+        app:layout_constraintTop_toBottomOf="@id/btn_search_online"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Logout -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_logout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Logout"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@+id/btn_search_by_ingredients"
+        android:text="Logout"
+        app:backgroundTint="#FFA500"
+        app:cornerRadius="22dp"
+        app:layout_constraintTop_toBottomOf="@id/btn_search_by_ingredients"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- About -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_about"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="About"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@+id/btn_logout"
+        android:text="About"
+        app:backgroundTint="#FFA500"
+        app:cornerRadius="22dp"
+        app:layout_constraintTop_toBottomOf="@id/btn_logout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

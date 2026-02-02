@@ -1,10 +1,12 @@
 package com.example.recipesplus.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Recipe {
+public class Recipe implements Serializable {
+
     private String id;
     private String title;
     private String ingredients;
@@ -15,9 +17,8 @@ public class Recipe {
     private List<String> categories;
     private String imageUrl;
 
-    // Default constructor for Firestore
+    // Required empty constructor for Firestore
     public Recipe() {
-        // If you prefer Firestore doc id as the true id, you can set id=null here.
         this.id = UUID.randomUUID().toString();
         this.favorite = false;
         this.source = "manual";
@@ -25,7 +26,7 @@ public class Recipe {
         this.imageUrl = null;
     }
 
-    // Main constructor for manually added recipes
+    // Manual recipe constructor
     public Recipe(String title, String ingredients, String instructions) {
         this.id = UUID.randomUUID().toString();
         this.title = title;
@@ -37,20 +38,22 @@ public class Recipe {
         this.imageUrl = null;
     }
 
-    // Constructor for online recipes
+    // Online recipe constructor
     public Recipe(String title, String ingredients, String instructions, String source) {
         this.id = UUID.randomUUID().toString();
         this.title = title;
         this.ingredients = ingredients;
         this.instructions = instructions;
 
-        // Online recipes should NOT be favorites by default
+        // NOT favorite by default
         this.favorite = false;
 
-        this.source = source; // e.g. "online"
+        this.source = source;
         this.categories = new ArrayList<>();
         this.imageUrl = null;
     }
+
+    // Getters / Setters
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
