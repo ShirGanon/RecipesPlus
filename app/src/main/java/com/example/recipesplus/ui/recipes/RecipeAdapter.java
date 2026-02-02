@@ -6,8 +6,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.recipesplus.R;
 import com.example.recipesplus.model.Recipe;
 
@@ -20,18 +22,21 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         void onRecipeClick(Recipe recipe);
     }
 
-    private List<Recipe> recipes;
+    private final List<Recipe> recipes;
     private final OnRecipeClickListener listener;
 
     public RecipeAdapter(List<Recipe> recipes, OnRecipeClickListener listener) {
-        this.recipes = recipes;
+        // Always keep a mutable local list to avoid UnsupportedOperationException
+        this.recipes = (recipes != null) ? new ArrayList<>(recipes) : new ArrayList<>();
         this.listener = listener;
     }
 
-    // This method will safely update the list of recipes and refresh the display.
+    // Safely update the list of recipes and refresh the display.
     public void updateRecipes(List<Recipe> newRecipes) {
         this.recipes.clear();
-        this.recipes.addAll(newRecipes);
+        if (newRecipes != null) {
+            this.recipes.addAll(newRecipes);
+        }
         notifyDataSetChanged();
     }
 
@@ -47,12 +52,12 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     public void onBindViewHolder(@NonNull RecipeViewHolder holder, int position) {
         Recipe recipe = recipes.get(position);
 
-        holder.title.setText(recipe.getTitle());
+        holder.title.setText(recipe.getTitle() != null ? recipe.getTitle() : "");
 
         String preview;
         if (recipe.getIngredients() != null && !recipe.getIngredients().trim().isEmpty()) {
             preview = recipe.getIngredients().trim();
-        } else if (recipe.getInstructions() != null) {
+        } else if (recipe.getInstructions() != null && !recipe.getInstructions().trim().isEmpty()) {
             preview = recipe.getInstructions().trim();
         } else {
             preview = "";
@@ -63,6 +68,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         }
         holder.preview.setText(preview);
 
+        // Favorite icon (you currently show it only for "online")
         if ("online".equals(recipe.getSource())) {
             holder.favoriteIcon.setVisibility(View.VISIBLE);
             holder.favoriteIcon.setImageResource(
@@ -74,7 +80,21 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             holder.favoriteIcon.setVisibility(View.GONE);
         }
 
-        holder.itemView.setOnClickListener(v -> listener.onRecipeClick(recipe));
+        // Image (from master)
+        if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
+            Glide.with(holder.recipeImage.getContext())
+                    .load(recipe.getImageUrl())
+                    .placeholder(android.R.drawable.ic_menu_gallery)
+                    .error(android.R.drawable.ic_menu_gallery)
+                    .centerCrop()
+                    .into(holder.recipeImage);
+        } else {
+            holder.recipeImage.setImageResource(android.R.drawable.ic_menu_gallery);
+        }
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onRecipeClick(recipe);
+        });
     }
 
     @Override
@@ -87,6 +107,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         TextView title;
         TextView preview;
         ImageView favoriteIcon;
+        ImageView recipeImage;
 
         public RecipeViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -94,6 +115,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             title = itemView.findViewById(R.id.tv_recipe_title);
             preview = itemView.findViewById(R.id.tv_recipe_preview);
             favoriteIcon = itemView.findViewById(R.id.iv_favorite);
+            recipeImage = itemView.findViewById(R.id.iv_recipe_image);
         }
     }
 }
