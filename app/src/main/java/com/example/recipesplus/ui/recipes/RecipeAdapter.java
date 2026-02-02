@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.recipesplus.R;
 import com.example.recipesplus.model.Recipe;
 
@@ -70,6 +71,18 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             holder.favoriteIcon.setVisibility(View.GONE);
         }
 
+        // Image
+        if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
+            Glide.with(holder.recipeImage.getContext())
+                    .load(recipe.getImageUrl())
+                    .placeholder(android.R.drawable.ic_menu_gallery)
+                    .error(android.R.drawable.ic_menu_gallery)
+                    .centerCrop()
+                    .into(holder.recipeImage);
+        } else {
+            holder.recipeImage.setImageResource(android.R.drawable.ic_menu_gallery);
+        }
+
         // Click → details
         holder.itemView.setOnClickListener(v -> listener.onRecipeClick(recipe));
     }
@@ -84,6 +97,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         TextView title;
         TextView preview;
         ImageView favoriteIcon;
+        ImageView recipeImage;
 
         public RecipeViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -91,6 +105,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             title = itemView.findViewById(R.id.tv_recipe_title);
             preview = itemView.findViewById(R.id.tv_recipe_preview);
             favoriteIcon = itemView.findViewById(R.id.iv_favorite);
+            recipeImage = itemView.findViewById(R.id.iv_recipe_image);
         }
     }
 }

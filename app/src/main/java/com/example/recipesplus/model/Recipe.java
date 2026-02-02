@@ -9,6 +9,7 @@ public class Recipe {
     private String instructions;
     private boolean favorite;
     private String source; // "manual" or "online"
+    private String imageUrl;
 
     // Default constructor for Firestore
     public Recipe() {
@@ -44,10 +45,12 @@ public class Recipe {
     public String getInstructions() { return instructions; }
     public boolean isFavorite() { return favorite; }
     public String getSource() { return source; }
+    public String getImageUrl() { return imageUrl; }
 
     public void setTitle(String title) { this.title = title; }
     public void setIngredients(String ingredients) { this.ingredients = ingredients; }
     public void setInstructions(String instructions) { this.instructions = instructions; }
     public void setFavorite(boolean favorite) { this.favorite = favorite; }
     public void setSource(String source) { this.source = source; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }
