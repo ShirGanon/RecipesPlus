@@ -15,26 +15,72 @@
             android:text="Add Recipe"
             android:textSize="22sp"
             android:textStyle="bold"
+            android:textColor="@android:color/black"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="16dp"/>
+
+        <ImageView
+            android:id="@+id/iv_recipe_image"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginBottom="8dp"
+            android:scaleType="centerCrop"
+            android:src="@android:drawable/ic_menu_gallery"
+            android:background="@android:color/darker_gray" />
+
+        <Button
+            android:id="@+id/btn_select_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Select Image"
+            android:layout_marginBottom="16dp" />
 
         <EditText
             android:id="@+id/et_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Title"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/black"
             android:textColorHint="@android:color/darker_gray"
+            android:backgroundTint="@android:color/black"
             android:layout_marginBottom="12dp"/>
 
-        <EditText
-            android:id="@+id/et_category"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="Category"
-            android:textColor="@android:color/white"
-            android:textColorHint="@android:color/darker_gray"
-            android:layout_marginBottom="12dp"/>
+            android:text="Categories"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp"/>
+
+        <CheckBox
+            android:id="@+id/cb_main_courses"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Main Courses"
+            android:textColor="@android:color/black"/>
+
+        <CheckBox
+            android:id="@+id/cb_desserts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Desserts"
+            android:textColor="@android:color/black"/>
+
+        <CheckBox
+            android:id="@+id/cb_vegan_vegetarian"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vegan / Vegetarian"
+            android:textColor="@android:color/black"/>
+
+        <CheckBox
+            android:id="@+id/cb_breakfast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Breakfast"
+            android:textColor="@android:color/black"/>
 
         <EditText
             android:id="@+id/et_ingredients"
@@ -44,8 +90,10 @@
             android:inputType="textMultiLine"
             android:minLines="4"
             android:gravity="top"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/black"
             android:textColorHint="@android:color/darker_gray"
+            android:backgroundTint="@android:color/black"
+            android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"/>
 
         <EditText
@@ -56,8 +104,9 @@
             android:inputType="textMultiLine"
             android:minLines="5"
             android:gravity="top"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/black"
             android:textColorHint="@android:color/darker_gray"
+            android:backgroundTint="@android:color/black"
             android:layout_marginBottom="18dp"/>
 
         <Button

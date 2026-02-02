@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -11,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.example.recipesplus.R;
 import com.example.recipesplus.data.RecipeRepository;
 import com.example.recipesplus.model.Recipe;
@@ -25,6 +27,7 @@ public class RecipeDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        ImageView ivRecipeImage = view.findViewById(R.id.iv_recipe_image);
         TextView tvTitle = view.findViewById(R.id.tv_title);
         TextView tvIngredients = view.findViewById(R.id.tv_ingredients);
         TextView tvInstructions = view.findViewById(R.id.tv_instructions);
@@ -51,6 +54,17 @@ public class RecipeDetailsFragment extends Fragment {
         tvTitle.setText(recipe.getTitle());
         tvIngredients.setText("Ingredients:\n" + nullToEmpty(recipe.getIngredients()));
         tvInstructions.setText("Instructions:\n" + nullToEmpty(recipe.getInstructions()));
+
+        // Show image if available
+        if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
+            ivRecipeImage.setVisibility(View.VISIBLE);
+            Glide.with(this)
+                    .load(recipe.getImageUrl())
+                    .centerCrop()
+                    .into(ivRecipeImage);
+        } else {
+            ivRecipeImage.setVisibility(View.GONE);
+        }
 
         // Hide favorite button for manual recipes
         if ("manual".equals(recipe.getSource())) {
