@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.example.recipesplus.R;
 import com.example.recipesplus.model.Recipe;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
@@ -25,8 +26,18 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     private final OnRecipeClickListener listener;
 
     public RecipeAdapter(List<Recipe> recipes, OnRecipeClickListener listener) {
-        this.recipes = recipes;
+        // Always keep a mutable local list to avoid UnsupportedOperationException
+        this.recipes = (recipes != null) ? new ArrayList<>(recipes) : new ArrayList<>();
         this.listener = listener;
+    }
+
+    // Safely update the list of recipes and refresh the display.
+    public void updateRecipes(List<Recipe> newRecipes) {
+        this.recipes.clear();
+        if (newRecipes != null) {
+            this.recipes.addAll(newRecipes);
+        }
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -41,14 +52,12 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     public void onBindViewHolder(@NonNull RecipeViewHolder holder, int position) {
         Recipe recipe = recipes.get(position);
 
-        // Title
-        holder.title.setText(recipe.getTitle());
+        holder.title.setText(recipe.getTitle() != null ? recipe.getTitle() : "");
 
-        // Preview: ingredients first, fallback to instructions
         String preview;
         if (recipe.getIngredients() != null && !recipe.getIngredients().trim().isEmpty()) {
             preview = recipe.getIngredients().trim();
-        } else if (recipe.getInstructions() != null) {
+        } else if (recipe.getInstructions() != null && !recipe.getInstructions().trim().isEmpty()) {
             preview = recipe.getInstructions().trim();
         } else {
             preview = "";
@@ -59,7 +68,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         }
         holder.preview.setText(preview);
 
-        // Favorite icon (display only for online recipes)
+        // Favorite icon (you currently show it only for "online")
         if ("online".equals(recipe.getSource())) {
             holder.favoriteIcon.setVisibility(View.VISIBLE);
             holder.favoriteIcon.setImageResource(
@@ -71,7 +80,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             holder.favoriteIcon.setVisibility(View.GONE);
         }
 
-        // Image
+        // Image (from master)
         if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
             Glide.with(holder.recipeImage.getContext())
                     .load(recipe.getImageUrl())
@@ -83,8 +92,9 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             holder.recipeImage.setImageResource(android.R.drawable.ic_menu_gallery);
         }
 
-        // Click → details
-        holder.itemView.setOnClickListener(v -> listener.onRecipeClick(recipe));
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onRecipeClick(recipe);
+        });
     }
 
     @Override

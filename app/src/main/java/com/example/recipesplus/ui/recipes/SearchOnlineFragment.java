@@ -2,6 +2,7 @@ package com.example.recipesplus.ui.recipes;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -25,6 +26,10 @@ import java.util.Set;
 public class SearchOnlineFragment extends Fragment {
 
     private final Set<String> savedKeys = new HashSet<>();
+    private Button btnSearch;
+    private EditText etQuery;
+    private RecyclerView rv;
+    private boolean isRepositoryLoaded = false;
 
     public SearchOnlineFragment() {
         super(R.layout.fragment_search_online);
@@ -32,18 +37,38 @@ public class SearchOnlineFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        EditText etQuery = view.findViewById(R.id.et_query);
-        RecyclerView rv = view.findViewById(R.id.rv_online);
+        etQuery = view.findViewById(R.id.et_query);
+        rv = view.findViewById(R.id.rv_online);
+        btnSearch = view.findViewById(R.id.btn_search);
 
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // Optional shortcut - user stays here unless they click it
+        // Disable search button until local recipes are loaded to prevent a crash
+        btnSearch.setEnabled(false);
+        btnSearch.setText("Loading...");
+
+        // Pre-load the recipe repository to prevent race conditions
+        RecipeRepository.getInstance().loadRecipes(() -> {
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    isRepositoryLoaded = true;
+                    btnSearch.setEnabled(true);
+                    btnSearch.setText("Search");
+                });
+            }
+        });
+
         view.findViewById(R.id.btn_go_my_recipes).setOnClickListener(v ->
                 Navigation.findNavController(v)
                         .navigate(R.id.action_searchOnlineFragment_to_myRecipesFragment)
         );
 
-        view.findViewById(R.id.btn_search).setOnClickListener(v -> {
+        btnSearch.setOnClickListener(v -> {
+            if (!isRepositoryLoaded) {
+                Toast.makeText(requireContext(), "Still loading local data, please wait...", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             String q = etQuery.getText().toString().trim();
             if (q.isEmpty()) {
                 Toast.makeText(requireContext(), "Enter search text", Toast.LENGTH_SHORT).show();
@@ -53,15 +78,25 @@ public class SearchOnlineFragment extends Fragment {
             new SpoonacularService().search(requireContext(), q, new SpoonacularService.Callback() {
                 @Override
                 public void onSuccess(List<OnlineRecipe> recipes) {
-                    requireActivity().runOnUiThread(() -> {
+                    if (getActivity() == null) return;
+                    getActivity().runOnUiThread(() -> {
                         rv.setAdapter(new OnlineRecipeAdapter(recipes, savedKeys, online -> {
-
-                            String instructions = !online.getInstructions().isEmpty()
-                                    ? online.getInstructions()
-                                    : online.getSummary();
-
                             RecipeRepository repo = RecipeRepository.getInstance();
-                            Recipe existing = repo.getByTitle(online.getTitle());
+
+                            // --- ROBUST FIX START ---
+                            // Manually and safely check for an existing recipe to avoid the crash
+                            Recipe existing = null;
+                            String onlineTitle = online.getTitle();
+                            if (onlineTitle != null) {
+                                List<Recipe> allLocalRecipes = repo.getAll();
+                                for (Recipe localRecipe : allLocalRecipes) {
+                                    if (localRecipe != null && localRecipe.getTitle() != null && onlineTitle.equalsIgnoreCase(localRecipe.getTitle())) {
+                                        existing = localRecipe;
+                                        break;
+                                    }
+                                }
+                            }
+                            // --- ROBUST FIX END ---
 
                             if (existing != null) {
                                 if (!existing.isFavorite()) {
@@ -73,6 +108,10 @@ public class SearchOnlineFragment extends Fragment {
                                 }
                                 return true;
                             }
+
+                            String instructions = !online.getInstructions().isEmpty()
+                                    ? online.getInstructions()
+                                    : online.getSummary();
 
                             Recipe local = new Recipe(
                                     online.getTitle(),
@@ -90,7 +129,8 @@ public class SearchOnlineFragment extends Fragment {
 
                 @Override
                 public void onError(String message) {
-                    requireActivity().runOnUiThread(() ->
+                    if (getActivity() == null) return;
+                    getActivity().runOnUiThread(() ->
                             Toast.makeText(requireContext(), "Error: " + message, Toast.LENGTH_LONG).show()
                     );
                 }

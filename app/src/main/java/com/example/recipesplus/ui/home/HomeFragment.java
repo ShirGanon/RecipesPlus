@@ -1,7 +1,9 @@
 package com.example.recipesplus.ui.home;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,7 +19,14 @@ import com.google.firebase.auth.FirebaseAuth;
 public class HomeFragment extends Fragment {
 
     public HomeFragment() {
-        super(R.layout.fragment_home);
+        // Required empty public constructor
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
@@ -49,9 +58,6 @@ public class HomeFragment extends Fragment {
 
         // Logout
         view.findViewById(R.id.btn_logout).setOnClickListener(v -> {
-            // Debug toast (remove later if you want)
-            Toast.makeText(requireContext(), "Logout clicked", Toast.LENGTH_SHORT).show();
-
             FirebaseAuth.getInstance().signOut();
             RecipeRepository.getInstance().clear();
 
