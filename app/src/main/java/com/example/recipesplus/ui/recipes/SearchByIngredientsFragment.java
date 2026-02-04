@@ -60,7 +60,10 @@ public class SearchByIngredientsFragment extends Fragment {
         ingredientsAdapter = new IngredientsAdapter(new ArrayList<>());
         rvIngredients.setAdapter(ingredientsAdapter);
 
-        recipeAdapter = new OnlineRecipeAdapter(new ArrayList<>(), new HashSet<>(), onlineRecipe -> true);
+        // init empty adapter (keeps constructor signature consistent)
+        recipeAdapter = new OnlineRecipeAdapter(new ArrayList<>(), new HashSet<>(), (online, asFavorite) -> {
+            // Logic handled when results are actually present
+        });
         rvRecipes.setAdapter(recipeAdapter);
 
         rvRecipes.setVisibility(View.GONE);
@@ -84,14 +87,13 @@ public class SearchByIngredientsFragment extends Fragment {
 
         btnSearch.setOnClickListener(v -> {
             if (rvRecipes.getVisibility() == View.VISIBLE) {
-                // If results are showing, this button acts as a "New Search"
+                // New Search
                 rvRecipes.setVisibility(View.GONE);
                 rvIngredients.setVisibility(View.VISIBLE);
                 etIngredientSearch.setVisibility(View.VISIBLE);
                 btnSearch.setText("Find Recipes");
-                ingredientsAdapter.clearSelections(); // Clear the selections
+                ingredientsAdapter.clearSelections();
             } else {
-                // Otherwise, perform the search
                 List<String> selectedIngredients = ingredientsAdapter.getSelectedIngredients();
                 if (selectedIngredients.isEmpty()) {
                     Toast.makeText(requireContext(), "Please select at least one ingredient", Toast.LENGTH_SHORT).show();
@@ -117,9 +119,9 @@ public class SearchByIngredientsFragment extends Fragment {
             @Override
             public void onError(String message) {
                 if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), "Error loading ingredients: " + message, Toast.LENGTH_LONG).show();
-                    });
+                    getActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), "Error loading ingredients: " + message, Toast.LENGTH_LONG).show()
+                    );
                 }
             }
         });
@@ -131,29 +133,68 @@ public class SearchByIngredientsFragment extends Fragment {
             public void onSuccess(List<OnlineRecipe> recipes) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
+                        // Switch UI to results
                         rvIngredients.setVisibility(View.GONE);
                         etIngredientSearch.setVisibility(View.GONE);
                         rvRecipes.setVisibility(View.VISIBLE);
                         btnSearch.setText("Find a New Recipe");
 
-                        recipeAdapter = new OnlineRecipeAdapter(recipes, new HashSet<>(), onlineRecipe -> {
+                        recipeAdapter = new OnlineRecipeAdapter(recipes, new HashSet<>(), (onlineRecipe, asFavorite) -> {
                             RecipeRepository repo = RecipeRepository.getInstance();
                             Recipe existing = repo.getByTitle(onlineRecipe.getTitle());
 
+                            // If already exists -> update favorite or remove
                             if (existing != null) {
-                                Toast.makeText(requireContext(), "Recipe already saved.", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Recipe local = new Recipe(
-                                        onlineRecipe.getTitle(),
-                                        onlineRecipe.getIngredients(),
-                                        onlineRecipe.getInstructions(),
-                                        "online"
-                                );
-                                repo.add(local);
-                                Toast.makeText(requireContext(), "Added to My Recipes", Toast.LENGTH_SHORT).show();
+                                if (asFavorite) {
+                                    if (!existing.isFavorite()) {
+                                        existing.setFavorite(true);
+                                        repo.update(existing);
+                                        Toast.makeText(requireContext(), "Added to favorites.", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(requireContext(), "Already in favorites.", Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    repo.delete(existing.getId());
+                                    Toast.makeText(requireContext(), "Recipe removed.", Toast.LENGTH_SHORT).show();
+                                }
+                                recipeAdapter.notifyDataSetChanged();
+                                return;
                             }
-                            return true;
+
+                            // Doesn't exist -> save it (favorite or not)
+                            String instructions = (onlineRecipe.getInstructions() != null && !onlineRecipe.getInstructions().isEmpty())
+                                    ? onlineRecipe.getInstructions()
+                                    : onlineRecipe.getSummary();
+
+                            Recipe local = new Recipe(
+                                    onlineRecipe.getTitle(),
+                                    onlineRecipe.getIngredients(),
+                                    instructions,
+                                    "online"
+                            );
+                            local.setFavorite(asFavorite);
+
+                            repo.add(local, new RecipeRepository.RecipeCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    if (getActivity() == null) return;
+                                    getActivity().runOnUiThread(() -> {
+                                        String message = asFavorite ? "Added to Favorites" : "Saved to My Recipes";
+                                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                                        recipeAdapter.notifyDataSetChanged();
+                                    });
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    if (getActivity() == null) return;
+                                    getActivity().runOnUiThread(() ->
+                                            Toast.makeText(requireContext(), "Error saving: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                                    );
+                                }
+                            });
                         });
+
                         rvRecipes.setAdapter(recipeAdapter);
                     });
                 }
@@ -162,9 +203,9 @@ public class SearchByIngredientsFragment extends Fragment {
             @Override
             public void onError(String message) {
                 if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), "Error searching recipes: " + message, Toast.LENGTH_LONG).show();
-                    });
+                    getActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), "Error searching recipes: " + message, Toast.LENGTH_LONG).show()
+                    );
                 }
             }
         });

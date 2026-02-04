@@ -4,34 +4,38 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.recipesplus.R;
+import com.example.recipesplus.data.RecipeRepository;
 import com.example.recipesplus.model.OnlineRecipe;
+import com.example.recipesplus.model.Recipe;
 
 import java.util.List;
-import java.util.Set;
 
 public class OnlineRecipeAdapter extends RecyclerView.Adapter<OnlineRecipeAdapter.VH> {
 
-    public interface OnSaveClick {
-        /**
-         * @return true only if saved successfully (no duplicates)
-         */
-        boolean onSave(OnlineRecipe recipe);
+    public interface OnSaveListener {
+        void onSave(OnlineRecipe recipe, boolean asFavorite);
     }
 
     private final List<OnlineRecipe> items;
-    private final Set<String> savedKeys;
-    private final OnSaveClick onSaveClick;
+    private final OnSaveListener onSaveListener;
+    private final RecipeRepository recipeRepository;
 
-    public OnlineRecipeAdapter(List<OnlineRecipe> items, Set<String> savedKeys, OnSaveClick onSaveClick) {
+    public OnlineRecipeAdapter(List<OnlineRecipe> items, OnSaveListener onSaveListener) {
         this.items = items;
-        this.savedKeys = savedKeys;
-        this.onSaveClick = onSaveClick;
+        this.onSaveListener = onSaveListener;
+        this.recipeRepository = RecipeRepository.getInstance();
+    }
+
+    // Overloaded constructor for backward compatibility (ignored)
+    public OnlineRecipeAdapter(List<OnlineRecipe> items, java.util.Set<String> unused, OnSaveListener onSaveListener) {
+        this(items, onSaveListener);
     }
 
     @NonNull
@@ -51,27 +55,42 @@ public class OnlineRecipeAdapter extends RecyclerView.Adapter<OnlineRecipeAdapte
         String preview = !r.getInstructions().isEmpty() ? r.getInstructions() : r.getSummary();
         h.preview.setText(preview.isEmpty() ? "No description" : preview);
 
-        String key = buildKey(r);
-        boolean alreadySaved = savedKeys.contains(key);
+        Recipe existing = recipeRepository.getByTitle(r.getTitle());
+        boolean isSaved = existing != null;
+        boolean isFavorite = isSaved && existing.isFavorite();
 
-        if (alreadySaved) {
-            h.btnSave.setEnabled(false);
-            h.btnSave.setText("Saved");
-            h.btnSave.setOnClickListener(null);
+        // Configure Save Button
+        if (isSaved) {
+            h.btnSave.setEnabled(true);
+            h.btnSave.setText("Unsave");
+            h.btnSave.setOnClickListener(v -> {
+                if (onSaveListener != null) {
+                    onSaveListener.onSave(r, false);
+                }
+            });
         } else {
             h.btnSave.setEnabled(true);
             h.btnSave.setText("Save");
-
             h.btnSave.setOnClickListener(v -> {
-                boolean saved = false;
-                if (onSaveClick != null) {
-                    saved = onSaveClick.onSave(r);
-                }
-                if (saved) {
-                    savedKeys.add(key);
-                    notifyItemChanged(h.getAdapterPosition());
+                if (onSaveListener != null) {
+                    onSaveListener.onSave(r, false);
                 }
             });
+        }
+
+        // Configure Favorite Icon - only available for saved recipes
+        if (isSaved) {
+            h.ivFavorite.setVisibility(View.VISIBLE);
+            h.ivFavorite.setImageResource(isFavorite ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off);
+            h.ivFavorite.setAlpha(isFavorite ? 1.0f : 0.6f);
+            // Toggle favorite on click
+            h.ivFavorite.setOnClickListener(v -> {
+                if (onSaveListener != null) {
+                    onSaveListener.onSave(r, !isFavorite);
+                }
+            });
+        } else {
+            h.ivFavorite.setVisibility(View.GONE);
         }
     }
 
@@ -80,18 +99,16 @@ public class OnlineRecipeAdapter extends RecyclerView.Adapter<OnlineRecipeAdapte
         return items.size();
     }
 
-    private String buildKey(OnlineRecipe r) {
-        return (r.getTitle() == null ? "" : r.getTitle().trim().toLowerCase());
-    }
-
     static class VH extends RecyclerView.ViewHolder {
         TextView title, preview;
+        ImageView ivFavorite;
         Button btnSave;
 
         VH(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.tv_title);
             preview = itemView.findViewById(R.id.tv_preview);
+            ivFavorite = itemView.findViewById(R.id.iv_favorite);
             btnSave = itemView.findViewById(R.id.btn_save);
         }
     }
