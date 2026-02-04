@@ -20,7 +20,6 @@ import com.example.recipesplus.model.Recipe;
 import com.example.recipesplus.services.SpoonacularService;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class SearchByIngredientsFragment extends Fragment {
@@ -56,7 +55,10 @@ public class SearchByIngredientsFragment extends Fragment {
         ingredientsAdapter = new IngredientsAdapter(new ArrayList<>());
         rvIngredients.setAdapter(ingredientsAdapter);
 
-        recipeAdapter = new OnlineRecipeAdapter(new ArrayList<>(), new HashSet<>(), onlineRecipe -> true);
+        // Fix the compilation error by using the new OnSaveListener
+        recipeAdapter = new OnlineRecipeAdapter(new ArrayList<>(), new java.util.HashSet<>(), (online, asFavorite) -> {
+            // Logic handled when results are actually present
+        });
         rvRecipes.setAdapter(recipeAdapter);
 
         // Initially hide the recipe results view
@@ -105,24 +107,61 @@ public class SearchByIngredientsFragment extends Fragment {
                     getActivity().runOnUiThread(() -> {
                         rvIngredients.setVisibility(View.GONE);
                         rvRecipes.setVisibility(View.VISIBLE);
+                        rvIngredients.setVisibility(View.GONE);
+                        rvRecipes.setVisibility(View.VISIBLE);
 
-                        recipeAdapter = new OnlineRecipeAdapter(recipes, new HashSet<>(), onlineRecipe -> {
+                        recipeAdapter = new OnlineRecipeAdapter(recipes, (onlineRecipe, asFavorite) -> {
                             RecipeRepository repo = RecipeRepository.getInstance();
                             Recipe existing = repo.getByTitle(onlineRecipe.getTitle());
 
                             if (existing != null) {
-                                Toast.makeText(requireContext(), "Recipe already saved.", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Recipe local = new Recipe(
-                                        onlineRecipe.getTitle(),
-                                        onlineRecipe.getIngredients(),
-                                        onlineRecipe.getInstructions(),
-                                        "online"
-                                );
-                                repo.add(local);
-                                Toast.makeText(requireContext(), "Added to Favorites", Toast.LENGTH_SHORT).show();
+                                if (asFavorite && !existing.isFavorite()) {
+                                    // Add to favorites
+                                    existing.setFavorite(true);
+                                    repo.update(existing);
+                                    Toast.makeText(requireContext(), "Added to favorites.", Toast.LENGTH_SHORT).show();
+                                    recipeAdapter.notifyDataSetChanged();
+                                } else if (!asFavorite) {
+                                    // Unsave the recipe (removes it whether favorited or not)
+                                    repo.delete(existing.getId());
+                                    Toast.makeText(requireContext(), "Recipe removed.", Toast.LENGTH_SHORT).show();
+                                    recipeAdapter.notifyDataSetChanged();
+                                }
+                                return;
                             }
-                            return true;
+
+                            // Recipe doesn't exist, so save it
+                            String instructions = !onlineRecipe.getInstructions().isEmpty()
+                                    ? onlineRecipe.getInstructions()
+                                    : onlineRecipe.getSummary();
+
+                            Recipe local = new Recipe(
+                                    onlineRecipe.getTitle(),
+                                    onlineRecipe.getIngredients(),
+                                    instructions,
+                                    "online"
+                            );
+                            local.setFavorite(asFavorite);
+
+                            repo.add(local, new RecipeRepository.RecipeCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    if (getActivity() == null) return;
+                                    getActivity().runOnUiThread(() -> {
+                                        String message = asFavorite ? "Added to Favorites" : "Saved to My Recipes";
+                                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                                        recipeAdapter.notifyDataSetChanged();
+                                    });
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    if (getActivity() == null) return;
+                                    getActivity().runOnUiThread(() ->
+                                            Toast.makeText(requireContext(), "Error saving: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                                    );
+                                }
+                            });
                         });
                         rvRecipes.setAdapter(recipeAdapter);
                     });

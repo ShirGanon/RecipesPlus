@@ -19,16 +19,14 @@ import com.example.recipesplus.model.OnlineRecipe;
 import com.example.recipesplus.model.Recipe;
 import com.example.recipesplus.services.SpoonacularService;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class SearchOnlineFragment extends Fragment {
 
-    private final Set<String> savedKeys = new HashSet<>();
     private Button btnSearch;
     private EditText etQuery;
     private RecyclerView rv;
+    private OnlineRecipeAdapter adapter;
     private boolean isRepositoryLoaded = false;
 
     public SearchOnlineFragment() {
@@ -43,11 +41,10 @@ public class SearchOnlineFragment extends Fragment {
 
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // Disable search button until local recipes are loaded to prevent a crash
+        // Disable search button until local recipes are loaded
         btnSearch.setEnabled(false);
         btnSearch.setText("Loading...");
 
-        // Pre-load the recipe repository to prevent race conditions
         RecipeRepository.getInstance().loadRecipes(() -> {
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
@@ -65,7 +62,7 @@ public class SearchOnlineFragment extends Fragment {
 
         btnSearch.setOnClickListener(v -> {
             if (!isRepositoryLoaded) {
-                Toast.makeText(requireContext(), "Still loading local data, please wait...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Still loading local data...", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -80,35 +77,27 @@ public class SearchOnlineFragment extends Fragment {
                 public void onSuccess(List<OnlineRecipe> recipes) {
                     if (getActivity() == null) return;
                     getActivity().runOnUiThread(() -> {
-                        rv.setAdapter(new OnlineRecipeAdapter(recipes, savedKeys, online -> {
+                        adapter = new OnlineRecipeAdapter(recipes, (online, asFavorite) -> {
                             RecipeRepository repo = RecipeRepository.getInstance();
-
-                            // --- ROBUST FIX START ---
-                            // Manually and safely check for an existing recipe to avoid the crash
-                            Recipe existing = null;
-                            String onlineTitle = online.getTitle();
-                            if (onlineTitle != null) {
-                                List<Recipe> allLocalRecipes = repo.getAll();
-                                for (Recipe localRecipe : allLocalRecipes) {
-                                    if (localRecipe != null && localRecipe.getTitle() != null && onlineTitle.equalsIgnoreCase(localRecipe.getTitle())) {
-                                        existing = localRecipe;
-                                        break;
-                                    }
-                                }
-                            }
-                            // --- ROBUST FIX END ---
+                            Recipe existing = repo.getByTitle(online.getTitle());
 
                             if (existing != null) {
-                                if (!existing.isFavorite()) {
+                                if (asFavorite && !existing.isFavorite()) {
+                                    // Add to favorites
                                     existing.setFavorite(true);
                                     repo.update(existing);
-                                    Toast.makeText(requireContext(), "Recipe moved to favorites.", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(requireContext(), "Recipe already in favorites.", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(requireContext(), "Added to favorites.", Toast.LENGTH_SHORT).show();
+                                    adapter.notifyDataSetChanged();
+                                } else if (!asFavorite) {
+                                    // Unsave the recipe (removes it whether favorited or not)
+                                    repo.delete(existing.getId());
+                                    Toast.makeText(requireContext(), "Recipe removed.", Toast.LENGTH_SHORT).show();
+                                    adapter.notifyDataSetChanged();
                                 }
-                                return true;
+                                return;
                             }
 
+                            // Recipe doesn't exist, so save it
                             String instructions = !online.getInstructions().isEmpty()
                                     ? online.getInstructions()
                                     : online.getSummary();
@@ -119,11 +108,29 @@ public class SearchOnlineFragment extends Fragment {
                                     instructions,
                                     "online"
                             );
+                            local.setFavorite(asFavorite);
 
-                            repo.add(local);
-                            Toast.makeText(requireContext(), "Added to Favorites", Toast.LENGTH_SHORT).show();
-                            return true;
-                        }));
+                            repo.add(local, new RecipeRepository.RecipeCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    if (getActivity() == null) return;
+                                    getActivity().runOnUiThread(() -> {
+                                        String message = asFavorite ? "Added to Favorites" : "Saved to My Recipes";
+                                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                                        adapter.notifyDataSetChanged();
+                                    });
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    if (getActivity() == null) return;
+                                    getActivity().runOnUiThread(() ->
+                                            Toast.makeText(requireContext(), "Error saving: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                                    );
+                                }
+                            });
+                        });
+                        rv.setAdapter(adapter);
                     });
                 }
 
@@ -136,9 +143,5 @@ public class SearchOnlineFragment extends Fragment {
                 }
             });
         });
-    }
-
-    private static boolean isBlank(String value) {
-        return value == null || value.trim().isEmpty();
     }
 }
