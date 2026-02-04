@@ -80,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="♡ Favorite"
-                app:backgroundTint="#FFA500"
+                app:backgroundTint="#572822"
                 app:cornerRadius="22dp" />
 
             <com.google.android.material.button.MaterialButton
@@ -89,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Delete"
-                app:backgroundTint="#FFA500"
+                app:backgroundTint="#572822"
                 app:cornerRadius="22dp" />
 
         </LinearLayout>

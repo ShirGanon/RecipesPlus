@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="Select Image"
-                app:backgroundTint="#FFA500"
+                app:backgroundTint="#572822"
                 app:cornerRadius="22dp"
                 android:layout_marginBottom="16dp" />
 
@@ -125,7 +125,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Save"
-                app:backgroundTint="#FFA500"
+                app:backgroundTint="#572822"
                 app:cornerRadius="22dp" />
 
         </LinearLayout>
