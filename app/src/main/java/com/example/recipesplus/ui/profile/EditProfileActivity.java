@@ -34,7 +34,7 @@ public class EditProfileActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Edit Profile");
+            getSupportActionBar().setTitle("");
         }
 
         auth = FirebaseAuth.getInstance();
