@@ -49,6 +49,7 @@ public class AddRecipeFragment extends Fragment {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                     imageUri = result.getData().getData();
                     if (imageUri != null && ivRecipeImage != null) {
+                        ivRecipeImage.setVisibility(View.VISIBLE);
                         ivRecipeImage.setImageURI(imageUri);
                     }
                 }
@@ -94,14 +95,17 @@ public class AddRecipeFragment extends Fragment {
                 applyCategoriesToCheckboxes(existingRecipe.getCategories());
 
                 if (existingRecipe.getImageUrl() != null && !existingRecipe.getImageUrl().isEmpty()) {
+                    ivRecipeImage.setVisibility(View.VISIBLE);
                     Glide.with(requireContext())
                             .load(existingRecipe.getImageUrl())
-                            .placeholder(android.R.drawable.ic_menu_gallery)
-                            .error(android.R.drawable.ic_menu_gallery)
                             .centerCrop()
                             .into(ivRecipeImage);
+                } else {
+                    ivRecipeImage.setVisibility(View.GONE);
                 }
             }
+        } else {
+            ivRecipeImage.setVisibility(View.GONE);
         }
 
         btnSave.setOnClickListener(v -> {

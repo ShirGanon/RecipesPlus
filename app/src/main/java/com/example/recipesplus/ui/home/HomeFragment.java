@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
@@ -82,21 +81,5 @@ public class HomeFragment extends Fragment {
                 Navigation.findNavController(v)
                         .navigate(R.id.action_homeFragment_to_aboutFragment)
         );
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (getActivity() instanceof AppCompatActivity) {
-            ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (getActivity() instanceof AppCompatActivity) {
-            ((AppCompatActivity) getActivity()).getSupportActionBar().show();
-        }
     }
 }
