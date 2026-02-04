@@ -3,9 +3,15 @@
     <style name="Base.Theme.RecipesPlus" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Force opaque window background -->
         <item name="android:windowIsTranslucent">false</item>
-        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowBackground">@android:color/black</item>
 
         <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="materialButtonStyle">@style/AppButton</item>
+    </style>
+
+    <style name="Theme.RecipesPlus" parent="Base.Theme.RecipesPlus" />
+
+    <style name="AppButton" parent="Widget.Material3.Button">
+        <item name="backgroundTint">#FF9800</item>
     </style>
 </resources>

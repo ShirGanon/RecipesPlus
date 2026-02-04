@@ -56,6 +56,13 @@ public class MyRecipesFragment extends Fragment {
                 Navigation.findNavController(requireView())
                         .navigate(R.id.action_myRecipesFragment_to_addRecipeFragment, args);
             }
+
+            @Override
+            public void onFavoriteClick(Recipe recipe) {
+                recipe.setFavorite(!recipe.isFavorite());
+                RecipeRepository.getInstance().update(recipe);
+                filterAndDisplay();
+            }
         });
 
         rv.setAdapter(adapter);
