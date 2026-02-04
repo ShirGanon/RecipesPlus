@@ -87,6 +87,13 @@ public class FavoritesFragment extends Fragment {
                                 public void onEditClick(Recipe recipe) {
                                     // Not applicable for favorites, do nothing.
                                 }
+
+                                @Override
+                                public void onFavoriteClick(Recipe recipe) {
+                                    recipe.setFavorite(false);
+                                    RecipeRepository.getInstance().update(recipe);
+                                    loadAndDisplayFavorites();
+                                }
                             }
                     )
             );
