@@ -25,7 +25,7 @@
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.example.recipesplus.ui.auth.RegisterFragment"
-        android:label="Create Account"
+        android:label=" "
         tools:layout="@layout/fragment_register">
 
         <action
