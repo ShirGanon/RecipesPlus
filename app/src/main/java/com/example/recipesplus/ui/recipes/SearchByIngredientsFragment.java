@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,10 +22,14 @@ import com.example.recipesplus.data.RecipeRepository;
 import com.example.recipesplus.model.OnlineRecipe;
 import com.example.recipesplus.model.Recipe;
 import com.example.recipesplus.services.SpoonacularService;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SearchByIngredientsFragment extends Fragment {
 
@@ -34,6 +39,8 @@ public class SearchByIngredientsFragment extends Fragment {
     private RecyclerView rvRecipes;
     private Button btnSearch;
     private EditText etIngredientSearch;
+    private ChipGroup cgSelectedIngredients;
+    private HorizontalScrollView hsvSelectedIngredients;
 
     public SearchByIngredientsFragment() {
         // Required empty public constructor
@@ -53,26 +60,32 @@ public class SearchByIngredientsFragment extends Fragment {
         rvRecipes = view.findViewById(R.id.rv_recipes);
         btnSearch = view.findViewById(R.id.btn_search_by_ingredients);
         etIngredientSearch = view.findViewById(R.id.et_ingredient_search);
+        cgSelectedIngredients = view.findViewById(R.id.cg_selected_ingredients);
+        hsvSelectedIngredients = view.findViewById(R.id.hsv_selected_ingredients);
 
         rvIngredients.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvRecipes.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         ingredientsAdapter = new IngredientsAdapter(new ArrayList<>());
+        ingredientsAdapter.setOnIngredientChangedListener((ingredient, isSelected) -> {
+            if (isSelected) {
+                addChipToGroup(ingredient);
+            } else {
+                removeChipFromGroup(ingredient);
+            }
+        });
         rvIngredients.setAdapter(ingredientsAdapter);
 
-        // init empty adapter (keeps constructor signature consistent)
-        recipeAdapter = new OnlineRecipeAdapter(new ArrayList<>(), new HashSet<>(), (online, asFavorite) -> {
-            // Logic handled when results are actually present
-        });
-        rvRecipes.setAdapter(recipeAdapter);
-
+        // This is a placeholder; the real adapter is created when search results arrive.
+        rvRecipes.setAdapter(null);
         rvRecipes.setVisibility(View.GONE);
 
         loadIngredients();
 
         etIngredientSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -82,17 +95,23 @@ public class SearchByIngredientsFragment extends Fragment {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         btnSearch.setOnClickListener(v -> {
             if (rvRecipes.getVisibility() == View.VISIBLE) {
-                // New Search
                 rvRecipes.setVisibility(View.GONE);
                 rvIngredients.setVisibility(View.VISIBLE);
                 etIngredientSearch.setVisibility(View.VISIBLE);
+                hsvSelectedIngredients.setVisibility(View.VISIBLE);
                 btnSearch.setText("Find Recipes");
-                ingredientsAdapter.clearSelections();
+                if (ingredientsAdapter != null) {
+                    ingredientsAdapter.clearSelections();
+                }
+                if (cgSelectedIngredients != null) {
+                    cgSelectedIngredients.removeAllViews();
+                }
             } else {
                 List<String> selectedIngredients = ingredientsAdapter.getSelectedIngredients();
                 if (selectedIngredients.isEmpty()) {
@@ -110,8 +129,9 @@ public class SearchByIngredientsFragment extends Fragment {
             public void onSuccess(List<String> ingredients) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        ingredientsAdapter = new IngredientsAdapter(ingredients);
-                        rvIngredients.setAdapter(ingredientsAdapter);
+                        if (ingredientsAdapter != null) {
+                            ingredientsAdapter.updateData(ingredients);
+                        }
                     });
                 }
             }
@@ -119,9 +139,9 @@ public class SearchByIngredientsFragment extends Fragment {
             @Override
             public void onError(String message) {
                 if (getActivity() != null) {
-                    getActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), "Error loading ingredients: " + message, Toast.LENGTH_LONG).show()
-                    );
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "Error loading ingredients: " + message, Toast.LENGTH_LONG).show();
+                    });
                 }
             }
         });
@@ -133,67 +153,37 @@ public class SearchByIngredientsFragment extends Fragment {
             public void onSuccess(List<OnlineRecipe> recipes) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        // Switch UI to results
                         rvIngredients.setVisibility(View.GONE);
                         etIngredientSearch.setVisibility(View.GONE);
+                        // --- FIX: The line that was hiding the chips has been removed ---
                         rvRecipes.setVisibility(View.VISIBLE);
                         btnSearch.setText("Find a New Recipe");
 
-                        recipeAdapter = new OnlineRecipeAdapter(recipes, new HashSet<>(), (onlineRecipe, asFavorite) -> {
+                        OnlineRecipeAdapter.OnSaveListener listener = (onlineRecipe, asFavorite) -> {
                             RecipeRepository repo = RecipeRepository.getInstance();
                             Recipe existing = repo.getByTitle(onlineRecipe.getTitle());
 
-                            // If already exists -> update favorite or remove
                             if (existing != null) {
-                                if (asFavorite) {
-                                    if (!existing.isFavorite()) {
-                                        existing.setFavorite(true);
-                                        repo.update(existing);
-                                        Toast.makeText(requireContext(), "Added to favorites.", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(requireContext(), "Already in favorites.", Toast.LENGTH_SHORT).show();
-                                    }
-                                } else {
-                                    repo.delete(existing.getId());
-                                    Toast.makeText(requireContext(), "Recipe removed.", Toast.LENGTH_SHORT).show();
-                                }
-                                recipeAdapter.notifyDataSetChanged();
-                                return;
+                                repo.delete(existing.getId());
+                                Toast.makeText(requireContext(), "Recipe removed.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Recipe local = new Recipe(
+                                        onlineRecipe.getTitle(),
+                                        onlineRecipe.getIngredients(),
+                                        onlineRecipe.getInstructions(),
+                                        "online"
+                                );
+                                local.setFavorite(asFavorite);
+                                repo.add(local);
+                                Toast.makeText(requireContext(), "Recipe saved.", Toast.LENGTH_SHORT).show();
                             }
+                        };
 
-                            // Doesn't exist -> save it (favorite or not)
-                            String instructions = (onlineRecipe.getInstructions() != null && !onlineRecipe.getInstructions().isEmpty())
-                                    ? onlineRecipe.getInstructions()
-                                    : onlineRecipe.getSummary();
+                        Set<String> savedTitles = RecipeRepository.getInstance().getAll().stream()
+                                .map(Recipe::getTitle)
+                                .collect(Collectors.toSet());
 
-                            Recipe local = new Recipe(
-                                    onlineRecipe.getTitle(),
-                                    onlineRecipe.getIngredients(),
-                                    instructions,
-                                    "online"
-                            );
-                            local.setFavorite(asFavorite);
-
-                            repo.add(local, new RecipeRepository.RecipeCallback() {
-                                @Override
-                                public void onSuccess() {
-                                    if (getActivity() == null) return;
-                                    getActivity().runOnUiThread(() -> {
-                                        String message = asFavorite ? "Added to Favorites" : "Saved to My Recipes";
-                                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
-                                        recipeAdapter.notifyDataSetChanged();
-                                    });
-                                }
-
-                                @Override
-                                public void onError(Exception e) {
-                                    if (getActivity() == null) return;
-                                    getActivity().runOnUiThread(() ->
-                                            Toast.makeText(requireContext(), "Error saving: " + e.getMessage(), Toast.LENGTH_LONG).show()
-                                    );
-                                }
-                            });
-                        });
+                        recipeAdapter = new OnlineRecipeAdapter(recipes, savedTitles, listener);
 
                         rvRecipes.setAdapter(recipeAdapter);
                     });
@@ -203,11 +193,35 @@ public class SearchByIngredientsFragment extends Fragment {
             @Override
             public void onError(String message) {
                 if (getActivity() != null) {
-                    getActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), "Error searching recipes: " + message, Toast.LENGTH_LONG).show()
-                    );
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "Error searching recipes: " + message, Toast.LENGTH_LONG).show();
+                    });
                 }
             }
         });
+    }
+
+    private void addChipToGroup(String text) {
+        Chip chip = new Chip(getContext());
+        chip.setText(text);
+        chip.setCloseIconVisible(true);
+        chip.setOnCloseIconClickListener(v -> {
+            cgSelectedIngredients.removeView(chip);
+            if (ingredientsAdapter != null) {
+                ingredientsAdapter.getSelectedIngredients().remove(text);
+                ingredientsAdapter.notifyDataSetChanged();
+            }
+        });
+        cgSelectedIngredients.addView(chip);
+    }
+
+    private void removeChipFromGroup(String text) {
+        for (int i = 0; i < cgSelectedIngredients.getChildCount(); i++) {
+            Chip chip = (Chip) cgSelectedIngredients.getChildAt(i);
+            if (chip.getText().toString().equals(text)) {
+                cgSelectedIngredients.removeView(chip);
+                break;
+            }
+        }
     }
 }

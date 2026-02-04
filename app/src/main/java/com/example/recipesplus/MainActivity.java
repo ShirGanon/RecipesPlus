@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean isHome = navController.getCurrentDestination() != null &&
-                         navController.getCurrentDestination().getId() == R.id.homeFragment;
+                navController.getCurrentDestination().getId() == R.id.homeFragment;
 
         MenuItem editProfile = menu.findItem(R.id.action_edit_profile);
         if (editProfile != null) {
