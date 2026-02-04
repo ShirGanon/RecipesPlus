@@ -20,8 +20,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
     public interface OnRecipeClickListener {
         void onRecipeClick(Recipe recipe);
-
-        default void onEditClick(Recipe recipe) {}
+        void onEditClick(Recipe recipe);
+        void onFavoriteClick(Recipe recipe);
     }
 
     private final List<Recipe> recipes;
@@ -62,16 +62,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
         holder.preview.setText(preview);
 
-        if ("online".equals(recipe.getSource())) {
-            holder.favoriteIcon.setVisibility(View.VISIBLE);
-            holder.favoriteIcon.setImageResource(
-                    recipe.isFavorite()
-                            ? android.R.drawable.btn_star_big_on
-                            : android.R.drawable.btn_star_big_off
-            );
-        } else {
-            holder.favoriteIcon.setVisibility(View.GONE);
-        }
+        holder.favoriteIcon.setImageResource(
+                recipe.isFavorite()
+                        ? android.R.drawable.btn_star_big_on
+                        : android.R.drawable.btn_star_big_off
+        );
 
         if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
             Glide.with(holder.recipeImage.getContext())
@@ -79,12 +74,14 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
                     .centerCrop()
                     .into(holder.recipeImage);
         } else {
-            holder.recipeImage.setImageResource(android.R.drawable.ic_menu_gallery);
+            holder.recipeImage.setImageResource(R.drawable.ic_chef_placeholder);
         }
 
         holder.itemView.setOnClickListener(v -> listener.onRecipeClick(recipe));
 
         holder.editIcon.setOnClickListener(v -> listener.onEditClick(recipe));
+
+        holder.favoriteIcon.setOnClickListener(v -> listener.onFavoriteClick(recipe));
     }
 
     @Override

@@ -66,20 +66,14 @@ public class RecipeDetailsFragment extends Fragment {
             ivRecipeImage.setVisibility(View.GONE);
         }
 
-        // Hide favorite button for manual recipes
-        if ("manual".equals(recipe.getSource())) {
-            btnFavorite.setVisibility(View.GONE);
-        } else {
-            btnFavorite.setVisibility(View.VISIBLE);
+        updateFavoriteButton(btnFavorite, recipe.isFavorite());
+        btnFavorite.setOnClickListener(v -> {
+            boolean isCurrentlyFavorite = recipe.isFavorite();
+            recipe.setFavorite(!isCurrentlyFavorite);
+            RecipeRepository.getInstance().update(recipe);
             updateFavoriteButton(btnFavorite, recipe.isFavorite());
-            btnFavorite.setOnClickListener(v -> {
-                boolean isCurrentlyFavorite = recipe.isFavorite();
-                recipe.setFavorite(!isCurrentlyFavorite);
-                RecipeRepository.getInstance().update(recipe);
-                updateFavoriteButton(btnFavorite, recipe.isFavorite());
-                Toast.makeText(requireContext(), recipe.isFavorite() ? "Added to favorites" : "Removed from favorites", Toast.LENGTH_SHORT).show();
-            });
-        }
+            Toast.makeText(requireContext(), recipe.isFavorite() ? "Added to favorites" : "Removed from favorites", Toast.LENGTH_SHORT).show();
+        });
 
         btnDelete.setOnClickListener(v -> {
             new AlertDialog.Builder(requireContext())
