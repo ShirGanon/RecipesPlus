@@ -34,7 +34,7 @@
                 android:layout_height="200dp"
                 android:layout_marginBottom="8dp"
                 android:scaleType="centerCrop"
-                android:src="@android:drawable/ic_menu_gallery"
+                android:visibility="gone"
                 android:background="@android:color/darker_gray" />
 
             <com.google.android.material.button.MaterialButton
