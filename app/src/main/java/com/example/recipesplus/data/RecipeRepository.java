@@ -91,8 +91,6 @@ public class RecipeRepository {
         recipeData.put("favorite", recipe.isFavorite());
         recipeData.put("userId", userId);
         recipeData.put("source", recipe.getSource());
-
-        // merge of feature/categories + master
         recipeData.put("categories", recipe.getCategories());
         recipeData.put("imageUrl", recipe.getImageUrl());
 

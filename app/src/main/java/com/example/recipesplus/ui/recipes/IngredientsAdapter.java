@@ -4,6 +4,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.Filter;
+import android.widget.Filterable;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,13 +15,15 @@ import com.example.recipesplus.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.IngredientViewHolder> {
+public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.IngredientViewHolder> implements Filterable {
 
-    private final List<String> ingredients;
+    private List<String> ingredients;
+    private final List<String> ingredientsFull;
     private final List<String> selectedIngredients = new ArrayList<>();
 
     public IngredientsAdapter(List<String> ingredients) {
         this.ingredients = ingredients;
+        this.ingredientsFull = new ArrayList<>(ingredients);
     }
 
     @NonNull
@@ -33,9 +37,12 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
     public void onBindViewHolder(@NonNull IngredientViewHolder holder, int position) {
         String ingredient = ingredients.get(position);
         holder.checkBox.setText(ingredient);
+        holder.checkBox.setChecked(selectedIngredients.contains(ingredient));
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                selectedIngredients.add(ingredient);
+                if (!selectedIngredients.contains(ingredient)) {
+                    selectedIngredients.add(ingredient);
+                }
             } else {
                 selectedIngredients.remove(ingredient);
             }
@@ -50,6 +57,43 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
     public List<String> getSelectedIngredients() {
         return selectedIngredients;
     }
+
+    public void clearSelections() {
+        selectedIngredients.clear();
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public Filter getFilter() {
+        return ingredientFilter;
+    }
+
+    private final Filter ingredientFilter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            List<String> filteredList = new ArrayList<>();
+            if (constraint == null || constraint.length() == 0) {
+                filteredList.addAll(ingredientsFull);
+            } else {
+                String filterPattern = constraint.toString().toLowerCase().trim();
+                for (String item : ingredientsFull) {
+                    if (item.toLowerCase().contains(filterPattern)) {
+                        filteredList.add(item);
+                    }
+                }
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            ingredients.clear();
+            ingredients.addAll((List) results.values);
+            notifyDataSetChanged();
+        }
+    };
 
     static class IngredientViewHolder extends RecyclerView.ViewHolder {
         CheckBox checkBox;

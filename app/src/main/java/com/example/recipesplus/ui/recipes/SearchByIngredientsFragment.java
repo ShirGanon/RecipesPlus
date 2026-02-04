@@ -1,10 +1,13 @@
 package com.example.recipesplus.ui.recipes;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,6 +23,7 @@ import com.example.recipesplus.model.Recipe;
 import com.example.recipesplus.services.SpoonacularService;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class SearchByIngredientsFragment extends Fragment {
@@ -29,6 +33,7 @@ public class SearchByIngredientsFragment extends Fragment {
     private RecyclerView rvIngredients;
     private RecyclerView rvRecipes;
     private Button btnSearch;
+    private EditText etIngredientSearch;
 
     public SearchByIngredientsFragment() {
         // Required empty public constructor
@@ -47,32 +52,55 @@ public class SearchByIngredientsFragment extends Fragment {
         rvIngredients = view.findViewById(R.id.rv_ingredients);
         rvRecipes = view.findViewById(R.id.rv_recipes);
         btnSearch = view.findViewById(R.id.btn_search_by_ingredients);
+        etIngredientSearch = view.findViewById(R.id.et_ingredient_search);
 
         rvIngredients.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvRecipes.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // Initialize adapters with empty lists
         ingredientsAdapter = new IngredientsAdapter(new ArrayList<>());
         rvIngredients.setAdapter(ingredientsAdapter);
 
-        // Fix the compilation error by using the new OnSaveListener
-        recipeAdapter = new OnlineRecipeAdapter(new ArrayList<>(), new java.util.HashSet<>(), (online, asFavorite) -> {
+        // init empty adapter (keeps constructor signature consistent)
+        recipeAdapter = new OnlineRecipeAdapter(new ArrayList<>(), new HashSet<>(), (online, asFavorite) -> {
             // Logic handled when results are actually present
         });
         rvRecipes.setAdapter(recipeAdapter);
 
-        // Initially hide the recipe results view
         rvRecipes.setVisibility(View.GONE);
 
         loadIngredients();
 
-        btnSearch.setOnClickListener(v -> {
-            List<String> selectedIngredients = ingredientsAdapter.getSelectedIngredients();
-            if (selectedIngredients.isEmpty()) {
-                Toast.makeText(requireContext(), "Please select at least one ingredient", Toast.LENGTH_SHORT).show();
-                return;
+        etIngredientSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (ingredientsAdapter != null) {
+                    ingredientsAdapter.getFilter().filter(s);
+                }
             }
-            searchRecipes(selectedIngredients);
+
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
+
+        btnSearch.setOnClickListener(v -> {
+            if (rvRecipes.getVisibility() == View.VISIBLE) {
+                // New Search
+                rvRecipes.setVisibility(View.GONE);
+                rvIngredients.setVisibility(View.VISIBLE);
+                etIngredientSearch.setVisibility(View.VISIBLE);
+                btnSearch.setText("Find Recipes");
+                ingredientsAdapter.clearSelections();
+            } else {
+                List<String> selectedIngredients = ingredientsAdapter.getSelectedIngredients();
+                if (selectedIngredients.isEmpty()) {
+                    Toast.makeText(requireContext(), "Please select at least one ingredient", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                searchRecipes(selectedIngredients);
+            }
         });
     }
 
@@ -91,9 +119,9 @@ public class SearchByIngredientsFragment extends Fragment {
             @Override
             public void onError(String message) {
                 if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), "Error loading ingredients: " + message, Toast.LENGTH_LONG).show();
-                    });
+                    getActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), "Error loading ingredients: " + message, Toast.LENGTH_LONG).show()
+                    );
                 }
             }
         });
@@ -105,33 +133,36 @@ public class SearchByIngredientsFragment extends Fragment {
             public void onSuccess(List<OnlineRecipe> recipes) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
+                        // Switch UI to results
                         rvIngredients.setVisibility(View.GONE);
+                        etIngredientSearch.setVisibility(View.GONE);
                         rvRecipes.setVisibility(View.VISIBLE);
-                        rvIngredients.setVisibility(View.GONE);
-                        rvRecipes.setVisibility(View.VISIBLE);
+                        btnSearch.setText("Find a New Recipe");
 
-                        recipeAdapter = new OnlineRecipeAdapter(recipes, (onlineRecipe, asFavorite) -> {
+                        recipeAdapter = new OnlineRecipeAdapter(recipes, new HashSet<>(), (onlineRecipe, asFavorite) -> {
                             RecipeRepository repo = RecipeRepository.getInstance();
                             Recipe existing = repo.getByTitle(onlineRecipe.getTitle());
 
+                            // If already exists -> update favorite or remove
                             if (existing != null) {
-                                if (asFavorite && !existing.isFavorite()) {
-                                    // Add to favorites
-                                    existing.setFavorite(true);
-                                    repo.update(existing);
-                                    Toast.makeText(requireContext(), "Added to favorites.", Toast.LENGTH_SHORT).show();
-                                    recipeAdapter.notifyDataSetChanged();
-                                } else if (!asFavorite) {
-                                    // Unsave the recipe (removes it whether favorited or not)
+                                if (asFavorite) {
+                                    if (!existing.isFavorite()) {
+                                        existing.setFavorite(true);
+                                        repo.update(existing);
+                                        Toast.makeText(requireContext(), "Added to favorites.", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(requireContext(), "Already in favorites.", Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
                                     repo.delete(existing.getId());
                                     Toast.makeText(requireContext(), "Recipe removed.", Toast.LENGTH_SHORT).show();
-                                    recipeAdapter.notifyDataSetChanged();
                                 }
+                                recipeAdapter.notifyDataSetChanged();
                                 return;
                             }
 
-                            // Recipe doesn't exist, so save it
-                            String instructions = !onlineRecipe.getInstructions().isEmpty()
+                            // Doesn't exist -> save it (favorite or not)
+                            String instructions = (onlineRecipe.getInstructions() != null && !onlineRecipe.getInstructions().isEmpty())
                                     ? onlineRecipe.getInstructions()
                                     : onlineRecipe.getSummary();
 
@@ -163,6 +194,7 @@ public class SearchByIngredientsFragment extends Fragment {
                                 }
                             });
                         });
+
                         rvRecipes.setAdapter(recipeAdapter);
                     });
                 }
@@ -171,9 +203,9 @@ public class SearchByIngredientsFragment extends Fragment {
             @Override
             public void onError(String message) {
                 if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), "Error searching recipes: " + message, Toast.LENGTH_LONG).show();
-                    });
+                    getActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), "Error searching recipes: " + message, Toast.LENGTH_LONG).show()
+                    );
                 }
             }
         });
