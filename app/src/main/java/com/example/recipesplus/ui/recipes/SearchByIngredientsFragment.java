@@ -1,10 +1,13 @@
 package com.example.recipesplus.ui.recipes;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,6 +33,7 @@ public class SearchByIngredientsFragment extends Fragment {
     private RecyclerView rvIngredients;
     private RecyclerView rvRecipes;
     private Button btnSearch;
+    private EditText etIngredientSearch;
 
     public SearchByIngredientsFragment() {
         // Required empty public constructor
@@ -48,29 +52,53 @@ public class SearchByIngredientsFragment extends Fragment {
         rvIngredients = view.findViewById(R.id.rv_ingredients);
         rvRecipes = view.findViewById(R.id.rv_recipes);
         btnSearch = view.findViewById(R.id.btn_search_by_ingredients);
+        etIngredientSearch = view.findViewById(R.id.et_ingredient_search);
 
         rvIngredients.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvRecipes.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // Initialize adapters with empty lists
         ingredientsAdapter = new IngredientsAdapter(new ArrayList<>());
         rvIngredients.setAdapter(ingredientsAdapter);
 
         recipeAdapter = new OnlineRecipeAdapter(new ArrayList<>(), new HashSet<>(), onlineRecipe -> true);
         rvRecipes.setAdapter(recipeAdapter);
 
-        // Initially hide the recipe results view
         rvRecipes.setVisibility(View.GONE);
 
         loadIngredients();
 
-        btnSearch.setOnClickListener(v -> {
-            List<String> selectedIngredients = ingredientsAdapter.getSelectedIngredients();
-            if (selectedIngredients.isEmpty()) {
-                Toast.makeText(requireContext(), "Please select at least one ingredient", Toast.LENGTH_SHORT).show();
-                return;
+        etIngredientSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (ingredientsAdapter != null) {
+                    ingredientsAdapter.getFilter().filter(s);
+                }
             }
-            searchRecipes(selectedIngredients);
+
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
+
+        btnSearch.setOnClickListener(v -> {
+            if (rvRecipes.getVisibility() == View.VISIBLE) {
+                // If results are showing, this button acts as a "New Search"
+                rvRecipes.setVisibility(View.GONE);
+                rvIngredients.setVisibility(View.VISIBLE);
+                etIngredientSearch.setVisibility(View.VISIBLE);
+                btnSearch.setText("Find Recipes");
+                ingredientsAdapter.clearSelections(); // Clear the selections
+            } else {
+                // Otherwise, perform the search
+                List<String> selectedIngredients = ingredientsAdapter.getSelectedIngredients();
+                if (selectedIngredients.isEmpty()) {
+                    Toast.makeText(requireContext(), "Please select at least one ingredient", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                searchRecipes(selectedIngredients);
+            }
         });
     }
 
@@ -104,7 +132,9 @@ public class SearchByIngredientsFragment extends Fragment {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         rvIngredients.setVisibility(View.GONE);
+                        etIngredientSearch.setVisibility(View.GONE);
                         rvRecipes.setVisibility(View.VISIBLE);
+                        btnSearch.setText("Find a New Recipe");
 
                         recipeAdapter = new OnlineRecipeAdapter(recipes, new HashSet<>(), onlineRecipe -> {
                             RecipeRepository repo = RecipeRepository.getInstance();
@@ -120,7 +150,7 @@ public class SearchByIngredientsFragment extends Fragment {
                                         "online"
                                 );
                                 repo.add(local);
-                                Toast.makeText(requireContext(), "Added to Favorites", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), "Added to My Recipes", Toast.LENGTH_SHORT).show();
                             }
                             return true;
                         });

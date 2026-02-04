@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class SpoonacularService {
 
@@ -97,44 +98,89 @@ public class SpoonacularService {
             HttpURLConnection conn = null;
             try {
                 String apiKey = context.getString(R.string.spoonacular_api_key);
-                String ingredientsStr = URLEncoder.encode(String.join(",", ingredients), "UTF-8");
+                String ingredientsStr = URLEncoder.encode(ingredients.stream().map(String::trim).collect(Collectors.joining(",")), "UTF-8");
 
-                String urlStr =
-                        "https://api.spoonacular.com/recipes/findByIngredients"
-                                + "?apiKey=" + apiKey
-                                + "&ingredients=" + ingredientsStr
-                                + "&number=20";
+                // --- FIX START ---
 
-                URL url = new URL(urlStr);
-                conn = (HttpURLConnection) url.openConnection();
+                // STEP 1: Find recipe IDs by ingredients
+                String findUrlStr = "https://api.spoonacular.com/recipes/findByIngredients"
+                        + "?apiKey=" + apiKey
+                        + "&ingredients=" + ingredientsStr
+                        + "&number=10"; // Limit to 10 results to be kind to the API
+
+                URL findUrl = new URL(findUrlStr);
+                conn = (HttpURLConnection) findUrl.openConnection();
                 conn.setRequestMethod("GET");
 
-                int code = conn.getResponseCode();
-                if (code != 200) {
-                    callback.onError("HTTP " + code);
+                if (conn.getResponseCode() != 200) {
+                    callback.onError("HTTP " + conn.getResponseCode());
                     return;
                 }
 
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) sb.append(line);
-                br.close();
+                BufferedReader findReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder findSb = new StringBuilder();
+                String findLine;
+                while ((findLine = findReader.readLine()) != null) {
+                    findSb.append(findLine);
+                }
+                findReader.close();
+                conn.disconnect();
 
-                JSONArray results = new JSONArray(sb.toString());
-                List<OnlineRecipe> list = new ArrayList<>();
-                for (int i = 0; i < results.length(); i++) {
-                    JSONObject r = results.getJSONObject(i);
-                    String title = r.optString("title", "");
-                    list.add(new OnlineRecipe(title, "", "", ""));
+                JSONArray findResults = new JSONArray(findSb.toString());
+                if (findResults.length() == 0) {
+                    callback.onSuccess(new ArrayList<>());
+                    return;
                 }
 
+                // Collect the IDs of the found recipes
+                List<String> ids = new ArrayList<>();
+                for (int i = 0; i < findResults.length(); i++) {
+                    ids.add(findResults.getJSONObject(i).getString("id"));
+                }
+
+                // STEP 2: Get the full details for the found recipe IDs
+                String idsStr = String.join(",", ids);
+                String bulkUrlStr = "https://api.spoonacular.com/recipes/informationBulk"
+                        + "?apiKey=" + apiKey
+                        + "&ids=" + URLEncoder.encode(idsStr, "UTF-8");
+
+                URL bulkUrl = new URL(bulkUrlStr);
+                conn = (HttpURLConnection) bulkUrl.openConnection();
+                conn.setRequestMethod("GET");
+
+                if (conn.getResponseCode() != 200) {
+                    callback.onError("HTTP " + conn.getResponseCode());
+                    return;
+                }
+
+                BufferedReader bulkReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder bulkSb = new StringBuilder();
+                String bulkLine;
+                while ((bulkLine = bulkReader.readLine()) != null) {
+                    bulkSb.append(bulkLine);
+                }
+                bulkReader.close();
+
+                JSONArray bulkResults = new JSONArray(bulkSb.toString());
+                List<OnlineRecipe> list = new ArrayList<>();
+                for (int i = 0; i < bulkResults.length(); i++) {
+                    JSONObject r = bulkResults.getJSONObject(i);
+                    String title = r.optString("title", "");
+                    String summary = stripHtml(r.optString("summary", ""));
+                    String instructions = stripHtml(r.optString("instructions", ""));
+                    String ingredientsList = extractIngredients(r.optJSONArray("extendedIngredients"));
+                    list.add(new OnlineRecipe(title, summary, instructions, ingredientsList));
+                }
                 callback.onSuccess(list);
+                // --- FIX END ---
 
             } catch (Exception e) {
+                Log.e("SpoonacularService", "Error in searchByIngredients", e);
                 callback.onError(e.getMessage() != null ? e.getMessage() : "Unknown error");
             } finally {
-                if (conn != null) conn.disconnect();
+                if (conn != null) {
+                    conn.disconnect();
+                }
             }
         });
     }
@@ -148,16 +194,15 @@ public class SpoonacularService {
                         + "?apiKey=" + apiKey
                         + "&number=100"
                         + "&sort=popularity"
-                        + "&addRecipeInformation=true"  // <-- This was the missing piece
-                        + "&fillIngredients=true";       // <-- And this
+                        + "&addRecipeInformation=true"
+                        + "&fillIngredients=true";
 
                 URL url = new URL(urlStr);
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
 
-                int code = conn.getResponseCode();
-                if (code != 200) {
-                    callback.onError("HTTP " + code);
+                if (conn.getResponseCode() != 200) {
+                    callback.onError("HTTP " + conn.getResponseCode());
                     return;
                 }
 
@@ -183,7 +228,6 @@ public class SpoonacularService {
                         }
                     }
                 }
-
                 callback.onSuccess(new ArrayList<>(ingredients));
 
             } catch (Exception e) {
