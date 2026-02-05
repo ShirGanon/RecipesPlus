@@ -51,11 +51,6 @@ public class OnlineRecipeAdapter extends RecyclerView.Adapter<OnlineRecipeAdapte
         this.onItemClickListener = onItemClickListener;
     }
 
-    // Overloaded constructor for backward compatibility (ignored)
-    public OnlineRecipeAdapter(List<OnlineRecipe> items, java.util.Set<String> unused, OnSaveListener onSaveListener) {
-        this(items, false, onSaveListener);
-    }
-
     @NonNull
     @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
