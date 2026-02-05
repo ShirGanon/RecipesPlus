@@ -34,9 +34,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:fontFamily="cursive"
-                android:paddingBottom="8dp"
+                android:paddingBottom="12dp"
                 android:textColor="@android:color/black"
-                android:textSize="40sp"
+                android:textSize="38sp"
                 android:textStyle="bold" />
 
         </androidx.appcompat.widget.Toolbar>
