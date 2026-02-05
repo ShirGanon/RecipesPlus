@@ -63,8 +63,15 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 toolbar.setNavigationIcon(R.drawable.ic_back_bold);
             }
+            boolean isExcluded = destination.getId() == R.id.homeFragment
+                    || destination.getId() == R.id.loginFragment;
+            toolbarTitle.setTranslationY(isExcluded ? 0f : dpToPx(12));
             invalidateOptionsMenu();
         });
+    }
+
+    private float dpToPx(int dp) {
+        return dp * getResources().getDisplayMetrics().density;
     }
 
     @Override

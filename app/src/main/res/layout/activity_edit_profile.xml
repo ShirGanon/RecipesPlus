@@ -41,6 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:fontFamily="cursive"
+                android:paddingTop="12dp"
                 android:paddingBottom="8dp"
                 android:text="Edit Profile"
                 android:textColor="@android:color/black"
