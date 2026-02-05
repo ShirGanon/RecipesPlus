@@ -17,6 +17,8 @@ import androidx.navigation.Navigation;
 import com.example.recipesplus.R;
 import com.example.recipesplus.data.RecipeRepository;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class RegisterFragment extends Fragment {
 
@@ -34,16 +36,30 @@ public class RegisterFragment extends Fragment {
 
         auth = FirebaseAuth.getInstance();
 
+        EditText etFullName = view.findViewById(R.id.et_full_name);
+        EditText etPhone = view.findViewById(R.id.et_phone);
+        EditText etCountry = view.findViewById(R.id.et_country);
         EditText etEmail = view.findViewById(R.id.et_email);
         EditText etPassword = view.findViewById(R.id.et_password);
+        EditText etConfirmPassword = view.findViewById(R.id.et_confirm_password);
         Button btnRegister = view.findViewById(R.id.btn_register);
 
         btnRegister.setOnClickListener(v -> {
+            String fullName = etFullName.getText() != null ? etFullName.getText().toString().trim() : "";
+            String phone = etPhone.getText() != null ? etPhone.getText().toString().trim() : "";
+            String country = etCountry.getText() != null ? etCountry.getText().toString().trim() : "";
             String email = etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
             String password = etPassword.getText() != null ? etPassword.getText().toString() : "";
+            String confirmPassword = etConfirmPassword.getText() != null ? etConfirmPassword.getText().toString() : "";
 
-            if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-                Toast.makeText(requireContext(), "Email and password are required", Toast.LENGTH_SHORT).show();
+            if (TextUtils.isEmpty(fullName) || TextUtils.isEmpty(phone) || TextUtils.isEmpty(country)
+                    || TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword)) {
+                Toast.makeText(requireContext(), "All fields are required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!password.equals(confirmPassword)) {
+                Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -59,6 +75,14 @@ public class RegisterFragment extends Fragment {
                         btnRegister.setEnabled(true);
 
                         if (task.isSuccessful()) {
+                            FirebaseUser user = auth.getCurrentUser();
+                            if (user != null) {
+                                UserProfileChangeRequest profileUpdates =
+                                        new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(fullName)
+                                                .build();
+                                user.updateProfile(profileUpdates);
+                            }
                             Toast.makeText(requireContext(), "Registered successfully", Toast.LENGTH_SHORT).show();
                             
                             // Load recipes from Firestore (will be empty for new user)

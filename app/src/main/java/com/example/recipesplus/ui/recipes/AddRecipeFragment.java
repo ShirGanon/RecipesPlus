@@ -119,6 +119,11 @@ public class AddRecipeFragment extends Fragment {
                 etTitle.requestFocus();
                 return;
             }
+            if (TextUtils.isEmpty(ingredients)) {
+                etIngredients.setError("Ingredients are required");
+                etIngredients.requestFocus();
+                return;
+            }
             if (TextUtils.isEmpty(instructions)) {
                 etInstructions.setError("Instructions are required");
                 etInstructions.requestFocus();

@@ -39,11 +39,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.42" />
+            app:layout_constraintGuide_percent="0.36" />
 
-        <!-- Email -->
+        <!-- Full name -->
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_email"
+            android:id="@+id/til_full_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:boxStrokeColor="@android:color/black"
@@ -51,6 +51,78 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/guideline_register">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_full_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@android:color/transparent"
+                android:hint="Full name"
+                android:inputType="textPersonName"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Phone number -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_phone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:boxStrokeColor="@android:color/black"
+            app:hintTextColor="@android:color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/til_full_name">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@android:color/transparent"
+                android:hint="Phone number"
+                android:inputType="phone"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Country -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_country"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:boxStrokeColor="@android:color/black"
+            app:hintTextColor="@android:color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/til_phone">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_country"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@android:color/transparent"
+                android:hint="Country"
+                android:inputType="textCapWords"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Email -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_email"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:boxStrokeColor="@android:color/black"
+            app:hintTextColor="@android:color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/til_country">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_email"
@@ -69,7 +141,7 @@
             android:id="@+id/til_password"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             app:boxStrokeColor="@android:color/black"
             app:hintTextColor="@android:color/black"
             app:layout_constraintEnd_toEndOf="parent"
@@ -89,6 +161,31 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Confirm Password -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_confirm_password"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:boxStrokeColor="@android:color/black"
+            app:hintTextColor="@android:color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/til_password"
+            app:passwordToggleEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_confirm_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@android:color/transparent"
+                android:hint="Confirm password"
+                android:inputType="textPassword"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Register button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_register"
@@ -99,11 +196,11 @@
             android:textAllCaps="false"
             android:textColor="@android:color/white"
             android:textSize="14sp"
-            app:backgroundTint="#FF9800"
+            app:backgroundTint="#572822"
             app:cornerRadius="22dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/til_password" />
+            app:layout_constraintTop_toBottomOf="@id/til_confirm_password" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
