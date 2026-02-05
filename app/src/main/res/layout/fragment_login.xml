@@ -17,22 +17,24 @@
         android:padding="24dp">
 
         <!-- Title -->
+
+        <!-- Guideline -->
+
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="MyRecipesBook"
-            android:textSize="48dp"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"
-            android:letterSpacing="0.06"
-            android:layout_marginTop="160dp"
+            android:layout_marginTop="244dp"
             android:fontFamily="cursive"
-            app:layout_constraintTop_toTopOf="parent"
+            android:letterSpacing="0.06"
+            android:text="MyRecipesBook"
+            android:textColor="@android:color/black"
+            android:textSize="48dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Guideline -->
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_login"
             android:layout_width="wrap_content"
