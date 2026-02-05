@@ -75,7 +75,6 @@ public class SearchByIngredientsFragment extends Fragment {
         });
         rvIngredients.setAdapter(ingredientsAdapter);
 
-        // This is a placeholder; the real adapter is created when search results arrive.
         rvRecipes.setAdapter(null);
         rvRecipes.setVisibility(View.GONE);
 
@@ -154,7 +153,6 @@ public class SearchByIngredientsFragment extends Fragment {
                     getActivity().runOnUiThread(() -> {
                         rvIngredients.setVisibility(View.GONE);
                         etIngredientSearch.setVisibility(View.GONE);
-                        // --- FIX: The line that was hiding the chips has been removed ---
                         rvRecipes.setVisibility(View.VISIBLE);
                         btnSearch.setText("Find a New Recipe");
 

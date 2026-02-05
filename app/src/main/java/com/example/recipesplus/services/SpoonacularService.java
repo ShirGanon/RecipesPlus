@@ -101,7 +101,6 @@ public class SpoonacularService {
                 String apiKey = com.example.recipesplus.BuildConfig.SPOONACULAR_API_KEY;
                 String ingredientsStr = URLEncoder.encode(ingredients.stream().map(String::trim).collect(Collectors.joining(",")), "UTF-8");
 
-                // --- FIX START ---
 
                 // STEP 1: Find recipe IDs by ingredients
                 String findUrlStr = "https://api.spoonacular.com/recipes/findByIngredients"
@@ -173,7 +172,6 @@ public class SpoonacularService {
                     list.add(new OnlineRecipe(title, summary, instructions, ingredientsList));
                 }
                 callback.onSuccess(list);
-                // --- FIX END ---
 
             } catch (Exception e) {
                 Log.e("SpoonacularService", "Error in searchByIngredients", e);

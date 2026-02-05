@@ -51,7 +51,6 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
         final String ingredient = ingredients.get(position);
         holder.checkBox.setText(ingredient);
 
-        // --- ROBUST FIX for CheckBox State ---
         // This is the standard way to handle checkboxes in a RecyclerView to prevent state loss.
         // 1. Temporarily remove the listener to prevent it from firing when we programmatically set the check state.
         holder.checkBox.setOnCheckedChangeListener(null);
