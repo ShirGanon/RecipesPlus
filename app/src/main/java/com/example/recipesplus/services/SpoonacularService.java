@@ -222,8 +222,9 @@ public class SpoonacularService {
                         for (int j = 0; j < usedIngredients.length(); j++) {
                             JSONObject ingredient = usedIngredients.getJSONObject(j);
                             String name = ingredient.optString("name");
-                            if (name != null && !name.trim().isEmpty()) {
-                                ingredients.add(name.trim().toLowerCase());
+                            String clean = sanitizeIngredient(name);
+                            if (clean != null && !clean.isEmpty()) {
+                                ingredients.add(clean.toLowerCase());
                             }
                         }
                     }
@@ -258,5 +259,17 @@ public class SpoonacularService {
     private static String stripHtml(String input) {
         if (input == null) return "";
         return input.replaceAll("<[^>]*>", "").trim();
+    }
+
+    private static String sanitizeIngredient(String input) {
+        if (input == null) return null;
+        String cleaned = input
+                .replace('\u00A0', ' ')
+                .replace("\u200B", "")
+                .replace("\uFEFF", "")
+                .trim();
+        // Remove leading non-alphanumeric symbols (bullets, boxes, etc.)
+        cleaned = cleaned.replaceAll("^[^A-Za-z0-9]+", "").trim();
+        return cleaned;
     }
 }
