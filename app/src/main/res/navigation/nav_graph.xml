@@ -5,6 +5,7 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/loginFragment">
 
+    <!-- App navigation graph: auth -> home -> feature screens -->
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.recipesplus.ui.auth.LoginFragment"

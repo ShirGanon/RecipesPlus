@@ -35,6 +35,7 @@ public class RecipeDetailsFragment extends Fragment {
         Button btnFavorite = view.findViewById(R.id.btn_favorite);
         Button btnDelete = view.findViewById(R.id.btn_delete);
 
+        // This screen can show either a local recipe (by id) or an online preview (via args).
         Bundle args = getArguments();
         String recipeId = args != null ? args.getString("recipeId") : null;
 

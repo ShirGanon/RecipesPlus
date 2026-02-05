@@ -28,6 +28,7 @@
             app:navigationIconTint="@android:color/black"
             app:theme="@style/ThemeOverlay.AppCompat.Light">
 
+            <!-- Custom centered title used by MainActivity -->
             <TextView
                 android:id="@+id/toolbar_title"
                 android:layout_width="wrap_content"

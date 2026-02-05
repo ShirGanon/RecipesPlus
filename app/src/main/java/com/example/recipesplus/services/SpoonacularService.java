@@ -33,6 +33,7 @@ public class SpoonacularService {
         void onError(String message);
     }
 
+    // Network calls are run off the main thread.
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public void search(Context context, String query, RecipeCallback callback) {
@@ -42,6 +43,7 @@ public class SpoonacularService {
                 String apiKey = context.getString(R.string.spoonacular_api_key);
                 String q = URLEncoder.encode(query, "UTF-8");
 
+                // Search recipes by free-text query.
                 String urlStr =
                         "https://api.spoonacular.com/recipes/complexSearch"
                                 + "?apiKey=" + apiKey
@@ -190,6 +192,7 @@ public class SpoonacularService {
             HttpURLConnection conn = null;
             try {
                 String apiKey = context.getString(R.string.spoonacular_api_key);
+                // Use popular recipes to extract a list of ingredient names.
                 String urlStr = "https://api.spoonacular.com/recipes/complexSearch"
                         + "?apiKey=" + apiKey
                         + "&number=100"

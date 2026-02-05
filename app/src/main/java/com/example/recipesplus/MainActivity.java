@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Disable the default title
+        // Use a custom centered TextView for titles instead of the default ActionBar title.
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         navController = navHostFragment.getNavController();
 
+        // Top-level destinations hide the back arrow.
         appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.loginFragment, R.id.homeFragment)
                 .build();
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            // Sync toolbar title and back button with the current screen.
             toolbarTitle.setText(destination.getLabel());
             boolean isTopLevel = destination.getId() == R.id.homeFragment
                     || destination.getId() == R.id.loginFragment;
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        // Show profile + logout only on the home screen.
         boolean isHome = navController.getCurrentDestination() != null &&
                 navController.getCurrentDestination().getId() == R.id.homeFragment;
 
@@ -105,11 +108,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (item.getItemId() == R.id.action_edit_profile) {
+            // Launch profile edit as a separate activity.
             startActivity(new Intent(this, EditProfileActivity.class));
             return true;
         }
 
         if (item.getItemId() == R.id.action_logout) {
+            // Clear auth state and return to login.
             FirebaseAuth.getInstance().signOut();
             NavOptions navOptions = new NavOptions.Builder()
                     .setPopUpTo(R.id.homeFragment, true)

@@ -1,6 +1,7 @@
 package com.example.recipesplus.model;
 
 public class OnlineRecipe {
+    // Lightweight DTO for Spoonacular results.
     private final String title;
     private final String summary;
     private final String instructions;

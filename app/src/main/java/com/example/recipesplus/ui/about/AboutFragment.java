@@ -5,6 +5,7 @@ import com.example.recipesplus.R;
 
 public class AboutFragment extends Fragment {
 
+    // Static About screen.
     public AboutFragment() {
         super(R.layout.fragment_about);
     }

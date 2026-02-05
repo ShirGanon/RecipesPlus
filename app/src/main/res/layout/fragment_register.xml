@@ -17,7 +17,7 @@
         android:layout_height="match_parent"
         android:padding="24dp">
 
-        <!-- כותרת -->
+        <!-- Title -->
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
@@ -204,3 +204,4 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
+

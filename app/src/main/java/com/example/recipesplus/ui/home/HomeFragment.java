@@ -33,6 +33,7 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Home actions navigate to the main feature screens.
         // My Recipes
         view.findViewById(R.id.btn_my_recipes).setOnClickListener(v ->
                 Navigation.findNavController(v)

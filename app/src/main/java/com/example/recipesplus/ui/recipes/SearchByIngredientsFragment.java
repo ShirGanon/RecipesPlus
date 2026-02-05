@@ -31,6 +31,7 @@ import java.util.List;
 
 public class SearchByIngredientsFragment extends Fragment {
 
+    // Allows selecting ingredients and searching for recipes that use them.
     private IngredientsAdapter ingredientsAdapter;
     private OnlineRecipeAdapter recipeAdapter;
     private RecyclerView rvIngredients;

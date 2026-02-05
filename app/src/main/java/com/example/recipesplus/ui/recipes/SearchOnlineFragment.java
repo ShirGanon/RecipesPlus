@@ -41,7 +41,7 @@ public class SearchOnlineFragment extends Fragment {
 
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // Disable search button until local recipes are loaded
+        // Disable search button until local recipes are loaded (used to show saved state).
         btnSearch.setEnabled(false);
         btnSearch.setText("Loading...");
 
@@ -77,6 +77,7 @@ public class SearchOnlineFragment extends Fragment {
                 public void onSuccess(List<OnlineRecipe> recipes) {
                     if (getActivity() == null) return;
                     getActivity().runOnUiThread(() -> {
+                        // Tap opens details; save button stores locally or toggles favorite.
                         OnlineRecipeAdapter.OnItemClickListener clickListener = onlineRecipe -> {
                             Bundle args = new Bundle();
                             args.putString("title", onlineRecipe.getTitle());

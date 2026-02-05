@@ -30,6 +30,7 @@ public class OnlineRecipeAdapter extends RecyclerView.Adapter<OnlineRecipeAdapte
 
     private final List<OnlineRecipe> items;
     private final OnSaveListener onSaveListener;
+    // Used to determine saved/favorite state of online results.
     private final RecipeRepository recipeRepository;
     private final boolean showFavoritePrompt;
     private final OnItemClickListener onItemClickListener;
@@ -72,6 +73,7 @@ public class OnlineRecipeAdapter extends RecyclerView.Adapter<OnlineRecipeAdapte
         String preview = !r.getInstructions().isEmpty() ? r.getInstructions() : r.getSummary();
         h.preview.setText(preview.isEmpty() ? "No description" : preview);
 
+        // Determine whether the recipe is already saved locally.
         Recipe existing = recipeRepository.getByTitle(r.getTitle());
         boolean isSaved = existing != null;
         boolean isFavorite = isSaved && existing.isFavorite();

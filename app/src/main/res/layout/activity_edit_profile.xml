@@ -35,6 +35,7 @@
             app:navigationIconTint="@android:color/black"
             app:theme="@style/ThemeOverlay.AppCompat.Light">
 
+            <!-- Static title for the edit profile screen -->
             <TextView
                 android:id="@+id/toolbar_title"
                 android:layout_width="wrap_content"
@@ -52,6 +53,7 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- Form fields live in a scroll container for small screens -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"

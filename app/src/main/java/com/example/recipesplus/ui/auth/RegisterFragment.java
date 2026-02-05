@@ -45,6 +45,7 @@ public class RegisterFragment extends Fragment {
         Button btnRegister = view.findViewById(R.id.btn_register);
 
         btnRegister.setOnClickListener(v -> {
+            // Basic client-side validation before attempting Firebase sign-up.
             String fullName = etFullName.getText() != null ? etFullName.getText().toString().trim() : "";
             String phone = etPhone.getText() != null ? etPhone.getText().toString().trim() : "";
             String country = etCountry.getText() != null ? etCountry.getText().toString().trim() : "";
@@ -75,6 +76,7 @@ public class RegisterFragment extends Fragment {
                         btnRegister.setEnabled(true);
 
                         if (task.isSuccessful()) {
+                            // Save display name in Firebase Auth profile.
                             FirebaseUser user = auth.getCurrentUser();
                             if (user != null) {
                                 UserProfileChangeRequest profileUpdates =
@@ -85,7 +87,7 @@ public class RegisterFragment extends Fragment {
                             }
                             Toast.makeText(requireContext(), "Registered successfully", Toast.LENGTH_SHORT).show();
                             
-                            // Load recipes from Firestore (will be empty for new user)
+                            // Load recipes from Firestore (will be empty for new user).
                             RecipeRepository.getInstance().loadRecipes(() -> {
                                 Navigation.findNavController(view)
                                         .navigate(R.id.action_registerFragment_to_homeFragment);

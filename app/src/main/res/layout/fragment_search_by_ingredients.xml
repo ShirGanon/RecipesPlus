@@ -27,6 +27,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Ingredient selection and results container -->
     <LinearLayout
         android:id="@+id/ll_content_wrapper"
         android:layout_width="match_parent"
@@ -38,6 +39,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Selected ingredient chips -->
         <HorizontalScrollView
             android:id="@+id/hsv_selected_ingredients"
             android:layout_width="match_parent"
@@ -54,6 +56,7 @@
 
         </HorizontalScrollView>
 
+        <!-- Search input for ingredient list -->
         <EditText
             android:id="@+id/et_ingredient_search"
             android:layout_width="match_parent"
@@ -66,12 +69,14 @@
             android:textColorHint="@android:color/black"
             android:backgroundTint="@android:color/black" />
 
+        <!-- Ingredient checklist -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_ingredients"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="8dp" />
 
+        <!-- Recipe results (hidden until search) -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_recipes"
             android:layout_width="match_parent"

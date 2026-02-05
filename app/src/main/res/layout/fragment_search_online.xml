@@ -15,6 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Search query input -->
     <EditText
         android:id="@+id/et_query"
         android:layout_width="0dp"
@@ -30,6 +31,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Actions: search and jump to local recipes -->
     <Button
         android:id="@+id/btn_search"
         android:layout_width="wrap_content"
@@ -52,6 +54,7 @@
         app:layout_constraintTop_toBottomOf="@id/et_query"
         app:layout_constraintEnd_toEndOf="@id/et_query"/>
 
+    <!-- Online recipe results -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_online"
         android:layout_width="0dp"

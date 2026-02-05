@@ -24,6 +24,7 @@ public class RecipeRepository {
 
     private static RecipeRepository instance;
 
+    // In-memory cache of the current user's recipes.
     private final List<Recipe> recipes = new ArrayList<>();
 
     private final FirebaseFirestore db;
@@ -49,6 +50,7 @@ public class RecipeRepository {
             return;
         }
 
+        // Fetch and hydrate cache from Firestore for the signed-in user.
         db.collection(COLLECTION_RECIPES)
                 .whereEqualTo("userId", userId)
                 .get()
@@ -84,6 +86,7 @@ public class RecipeRepository {
             return;
         }
 
+        // Persist a new recipe and keep local cache in sync on success.
         Map<String, Object> recipeData = new HashMap<>();
         recipeData.put("title", recipe.getTitle());
         recipeData.put("ingredients", recipe.getIngredients());
@@ -121,7 +124,7 @@ public class RecipeRepository {
         String userId = getCurrentUserId();
         if (userId == null) return;
 
-        // Update local cache
+        // Update local cache first for immediate UI refresh.
         for (int i = 0; i < recipes.size(); i++) {
             Recipe existing = recipes.get(i);
             if (existing != null && recipe.getId().equals(existing.getId())) {
@@ -130,7 +133,7 @@ public class RecipeRepository {
             }
         }
 
-        // Update in Firestore (merge so we don't accidentally wipe other fields)
+        // Update in Firestore (merge so we don't accidentally wipe other fields).
         Map<String, Object> updates = new HashMap<>();
         updates.put("title", recipe.getTitle());
         updates.put("ingredients", recipe.getIngredients());
@@ -150,6 +153,7 @@ public class RecipeRepository {
 
     public void delete(String recipeId) {
         if (recipeId == null) return;
+        // Remove from cache and then from Firestore.
         recipes.removeIf(r -> r != null && recipeId.equals(r.getId()));
         db.collection(COLLECTION_RECIPES).document(recipeId).delete();
     }

@@ -30,6 +30,7 @@ public class EditProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
+        // Simple toolbar with back navigation for the profile editor.
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -54,7 +55,7 @@ public class EditProfileActivity extends AppCompatActivity {
         etConfirmPassword = findViewById(R.id.et_confirm_password);
         btnSave = findViewById(R.id.btn_save);
 
-        // מילוי נתונים קיימים
+        // Pre-fill existing profile data.
         if (user.getDisplayName() != null) etFullName.setText(user.getDisplayName());
         if (user.getEmail() != null) etEmail.setText(user.getEmail());
 
@@ -78,7 +79,9 @@ public class EditProfileActivity extends AppCompatActivity {
 
         boolean wantsPasswordChange = !TextUtils.isEmpty(password) || !TextUtils.isEmpty(confirm);
 
-        // אימות בסיסי
+        // Basic validation before applying updates.
+
+        // Basic validation.
         if (TextUtils.isEmpty(fullName)) {
             etFullName.setError("Full name is required");
             etFullName.requestFocus();
@@ -104,7 +107,7 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         }
 
-        // 1) עדכון שם (displayName)
+        // 1) Update display name.
         UserProfileChangeRequest profileUpdates =
                 new UserProfileChangeRequest.Builder()
                         .setDisplayName(fullName)
@@ -115,7 +118,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         Toast.makeText(this, "Failed to update name: " + e.getMessage(), Toast.LENGTH_LONG).show()
                 );
 
-        // 2) עדכון אימייל (רק אם השתנה)
+        // 2) Update email (only if it changed).
         if (user.getEmail() == null || !email.equals(user.getEmail())) {
             user.updateEmail(email)
                     .addOnSuccessListener(unused ->
@@ -129,7 +132,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     );
         }
 
-        // 3) עדכון סיסמה (אם המשתמש הזין)
+        // 3) Update password (only if provided).
         if (wantsPasswordChange) {
             user.updatePassword(password)
                     .addOnSuccessListener(unused ->
@@ -147,3 +150,4 @@ public class EditProfileActivity extends AppCompatActivity {
         finish();
     }
 }
+

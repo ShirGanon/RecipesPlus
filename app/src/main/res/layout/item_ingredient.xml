@@ -5,6 +5,7 @@
     android:orientation="horizontal"
     android:padding="8dp">
 
+    <!-- Single ingredient option with checkbox -->
     <CheckBox
         android:id="@+id/cb_ingredient"
         android:layout_width="wrap_content"

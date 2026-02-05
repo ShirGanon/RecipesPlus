@@ -51,6 +51,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
         holder.title.setText(recipe.getTitle() == null ? "" : recipe.getTitle());
 
+        // Build a short preview from ingredients or instructions.
         String preview = "";
         if (recipe.getIngredients() != null && !recipe.getIngredients().isEmpty())
             preview = recipe.getIngredients();

@@ -40,6 +40,7 @@ public class MyRecipesFragment extends Fragment {
 
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
 
+        // Main list supports view, edit, and favorite toggling.
         adapter = new RecipeAdapter(new ArrayList<>(), new RecipeAdapter.OnRecipeClickListener() {
             @Override
             public void onRecipeClick(Recipe recipe) {
@@ -73,6 +74,7 @@ public class MyRecipesFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Reload from Firestore to keep list fresh.
         RecipeRepository.getInstance().loadRecipes(() -> {
             allRecipes = RecipeRepository.getInstance().getAll();
             filterAndDisplay();
@@ -80,6 +82,7 @@ public class MyRecipesFragment extends Fragment {
     }
 
     private void filterAndDisplay() {
+        // Filter by category chip selection.
         List<Recipe> filtered = new ArrayList<>();
         int id = chipGroup.getCheckedChipId();
 

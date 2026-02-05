@@ -12,12 +12,13 @@ public class Recipe implements Serializable {
     private String ingredients;
     private String instructions;
     private boolean favorite;
+    // Source tag is used to differentiate user-entered vs. online imports.
     private String source; // "manual" or "online"
 
     private List<String> categories;
     private String imageUrl;
 
-    // Required empty constructor for Firestore
+    // Required empty constructor for Firestore serialization.
     public Recipe() {
         this.id = UUID.randomUUID().toString();
         this.favorite = false;

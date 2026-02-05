@@ -42,6 +42,7 @@ public class FavoritesFragment extends Fragment {
         etSearch = view.findViewById(R.id.et_favorites_search);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
+        // Favorites list supports search and unfavorite actions.
         adapter = new RecipeAdapter(new ArrayList<>(), new RecipeAdapter.OnRecipeClickListener() {
             @Override
             public void onRecipeClick(Recipe recipe) {
@@ -91,6 +92,7 @@ public class FavoritesFragment extends Fragment {
 
     private void loadAndDisplayFavorites() {
         RecipeRepository repo = RecipeRepository.getInstance();
+        // Refresh from Firestore to keep favorites accurate.
         repo.loadRecipes(() -> {
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
@@ -115,6 +117,7 @@ public class FavoritesFragment extends Fragment {
     }
 
     private void applyFilter(String query) {
+        // Simple client-side filter across title, ingredients, and instructions.
         String q = query == null ? "" : query.trim().toLowerCase();
         List<Recipe> filtered = new ArrayList<>();
 

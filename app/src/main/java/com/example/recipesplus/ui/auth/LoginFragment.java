@@ -38,10 +38,10 @@ public class LoginFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
         NavController nav = Navigation.findNavController(view);
 
-        // Auto-login, but do NOT auto-login when we arrived here from another screen (e.g., Logout)
+        // Auto-login, but skip when arriving here from another screen (e.g., after Logout).
         // When coming from Home -> Login, previousBackStackEntry exists.
         if (auth.getCurrentUser() != null && nav.getPreviousBackStackEntry() == null) {
-            // Load recipes from Firestore before navigating
+            // Load recipes from Firestore before navigating.
             RecipeRepository.getInstance().loadRecipes(() -> {
                 nav.navigate(R.id.action_loginFragment_to_homeFragment);
             });
@@ -81,7 +81,7 @@ public class LoginFragment extends Fragment {
                                     "Logged in",
                                     Toast.LENGTH_SHORT).show();
 
-                            // Load recipes from Firestore
+                            // Load recipes from Firestore before showing Home.
                             RecipeRepository.getInstance().loadRecipes(() -> {
                                 Navigation.findNavController(view)
                                         .navigate(R.id.action_loginFragment_to_homeFragment);
@@ -103,6 +103,7 @@ public class LoginFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (getActivity() instanceof AppCompatActivity) {
+            // Hide toolbar on auth screens.
             ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
         }
     }
@@ -111,6 +112,7 @@ public class LoginFragment extends Fragment {
     public void onStop() {
         super.onStop();
         if (getActivity() instanceof AppCompatActivity) {
+            // Restore toolbar when leaving auth screens.
             ((AppCompatActivity) getActivity()).getSupportActionBar().show();
         }
     }
