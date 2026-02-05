@@ -10,12 +10,25 @@ android {
         version = release(36)
     }
 
+    buildFeatures {
+        buildConfig true
+    }
+
     defaultConfig {
         applicationId "com.example.recipesplus"
         minSdk 24
         targetSdk 36
         versionCode 1
         versionName "1.0"
+
+        // Read local API key and expose it via BuildConfig.
+        def localProperties = new Properties()
+        def localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.withInputStream { stream -> localProperties.load(stream) }
+        }
+        def spoonacularKey = localProperties.getProperty("SPOONACULAR_API_KEY", "")
+        buildConfigField "String", "SPOONACULAR_API_KEY", "\"${spoonacularKey}\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

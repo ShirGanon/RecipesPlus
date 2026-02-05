@@ -3,7 +3,6 @@ package com.example.recipesplus.services;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.recipesplus.R;
 import com.example.recipesplus.model.OnlineRecipe;
 
 import org.json.JSONArray;
@@ -40,7 +39,7 @@ public class SpoonacularService {
         executor.execute(() -> {
             HttpURLConnection conn = null;
             try {
-                String apiKey = context.getString(R.string.spoonacular_api_key);
+                String apiKey = com.example.recipesplus.BuildConfig.SPOONACULAR_API_KEY;
                 String q = URLEncoder.encode(query, "UTF-8");
 
                 // Search recipes by free-text query.
@@ -99,7 +98,7 @@ public class SpoonacularService {
         executor.execute(() -> {
             HttpURLConnection conn = null;
             try {
-                String apiKey = context.getString(R.string.spoonacular_api_key);
+                String apiKey = com.example.recipesplus.BuildConfig.SPOONACULAR_API_KEY;
                 String ingredientsStr = URLEncoder.encode(ingredients.stream().map(String::trim).collect(Collectors.joining(",")), "UTF-8");
 
                 // --- FIX START ---
@@ -191,7 +190,7 @@ public class SpoonacularService {
         executor.execute(() -> {
             HttpURLConnection conn = null;
             try {
-                String apiKey = context.getString(R.string.spoonacular_api_key);
+                String apiKey = com.example.recipesplus.BuildConfig.SPOONACULAR_API_KEY;
                 // Use popular recipes to extract a list of ingredient names.
                 String urlStr = "https://api.spoonacular.com/recipes/complexSearch"
                         + "?apiKey=" + apiKey
