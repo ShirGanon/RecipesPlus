@@ -3,4 +3,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="green">#2E7D32</color>
+    <color name="recipe_save">#572822</color>
+    <color name="recipe_unsafe">#7A1F1F</color>
 </resources>

@@ -50,9 +50,19 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back_bold);
+        }
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             toolbarTitle.setText(destination.getLabel());
+            boolean isTopLevel = destination.getId() == R.id.homeFragment
+                    || destination.getId() == R.id.loginFragment;
+            if (isTopLevel) {
+                toolbar.setNavigationIcon(null);
+            } else {
+                toolbar.setNavigationIcon(R.drawable.ic_back_bold);
+            }
             invalidateOptionsMenu();
         });
     }

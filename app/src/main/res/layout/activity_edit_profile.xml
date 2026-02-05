@@ -31,6 +31,8 @@
             android:layout_height="?attr/actionBarSize"
             android:title=""
             app:title=""
+            app:navigationIcon="@drawable/ic_back_bold"
+            app:navigationIconTint="@android:color/black"
             app:theme="@style/ThemeOverlay.AppCompat.Light">
 
             <TextView

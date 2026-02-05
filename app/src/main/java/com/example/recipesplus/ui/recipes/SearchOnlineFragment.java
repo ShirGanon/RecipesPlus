@@ -77,7 +77,19 @@ public class SearchOnlineFragment extends Fragment {
                 public void onSuccess(List<OnlineRecipe> recipes) {
                     if (getActivity() == null) return;
                     getActivity().runOnUiThread(() -> {
-                        adapter = new OnlineRecipeAdapter(recipes, (online, asFavorite) -> {
+                        OnlineRecipeAdapter.OnItemClickListener clickListener = onlineRecipe -> {
+                            Bundle args = new Bundle();
+                            args.putString("title", onlineRecipe.getTitle());
+                            args.putString("ingredients", onlineRecipe.getIngredients());
+                            String instructions = !onlineRecipe.getInstructions().isEmpty()
+                                    ? onlineRecipe.getInstructions()
+                                    : onlineRecipe.getSummary();
+                            args.putString("instructions", instructions);
+                            Navigation.findNavController(requireView())
+                                    .navigate(R.id.action_searchOnlineFragment_to_recipeDetailsFragment, args);
+                        };
+
+                        adapter = new OnlineRecipeAdapter(recipes, false, (online, asFavorite) -> {
                             RecipeRepository repo = RecipeRepository.getInstance();
                             Recipe existing = repo.getByTitle(online.getTitle());
 
@@ -129,7 +141,7 @@ public class SearchOnlineFragment extends Fragment {
                                     );
                                 }
                             });
-                        });
+                        }, clickListener);
                         rv.setAdapter(adapter);
                     });
                 }

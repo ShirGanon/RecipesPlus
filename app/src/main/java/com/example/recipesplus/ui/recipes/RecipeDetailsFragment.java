@@ -35,57 +35,73 @@ public class RecipeDetailsFragment extends Fragment {
         Button btnFavorite = view.findViewById(R.id.btn_favorite);
         Button btnDelete = view.findViewById(R.id.btn_delete);
 
-        String recipeId = getArguments() != null ? getArguments().getString("recipeId") : null;
-        if (recipeId == null) {
-            tvTitle.setText("Recipe not found");
-            btnFavorite.setVisibility(View.GONE);
-            btnDelete.setVisibility(View.GONE);
-            return;
-        }
+        Bundle args = getArguments();
+        String recipeId = args != null ? args.getString("recipeId") : null;
 
-        final Recipe recipe = RecipeRepository.getInstance().getById(recipeId);
-        if (recipe == null) {
-            tvTitle.setText("Recipe not found");
-            btnFavorite.setVisibility(View.GONE);
-            btnDelete.setVisibility(View.GONE);
-            return;
-        }
+        if (recipeId != null) {
+            final Recipe recipe = RecipeRepository.getInstance().getById(recipeId);
+            if (recipe == null) {
+                tvTitle.setText("Recipe not found");
+                btnFavorite.setVisibility(View.GONE);
+                btnDelete.setVisibility(View.GONE);
+                return;
+            }
 
-        tvTitle.setText(recipe.getTitle());
-        tvIngredients.setText("Ingredients:\n" + nullToEmpty(recipe.getIngredients()));
-        tvInstructions.setText("Instructions:\n" + nullToEmpty(recipe.getInstructions()));
+            tvTitle.setText(recipe.getTitle());
+            tvIngredients.setText("Ingredients:\n" + nullToEmpty(recipe.getIngredients()));
+            tvInstructions.setText("Instructions:\n" + nullToEmpty(recipe.getInstructions()));
 
-        // Show image if available
-        if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
-            ivRecipeImage.setVisibility(View.VISIBLE);
-            Glide.with(this)
-                    .load(recipe.getImageUrl())
-                    .centerCrop()
-                    .into(ivRecipeImage);
-        } else {
-            ivRecipeImage.setVisibility(View.GONE);
-        }
+            // Show image if available
+            if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
+                ivRecipeImage.setVisibility(View.VISIBLE);
+                Glide.with(this)
+                        .load(recipe.getImageUrl())
+                        .centerCrop()
+                        .into(ivRecipeImage);
+            } else {
+                ivRecipeImage.setVisibility(View.GONE);
+            }
 
-        updateFavoriteButton(btnFavorite, recipe.isFavorite());
-        btnFavorite.setOnClickListener(v -> {
-            boolean isCurrentlyFavorite = recipe.isFavorite();
-            recipe.setFavorite(!isCurrentlyFavorite);
-            RecipeRepository.getInstance().update(recipe);
             updateFavoriteButton(btnFavorite, recipe.isFavorite());
-            Toast.makeText(requireContext(), recipe.isFavorite() ? "Added to favorites" : "Removed from favorites", Toast.LENGTH_SHORT).show();
-        });
+            btnFavorite.setOnClickListener(v -> {
+                boolean isCurrentlyFavorite = recipe.isFavorite();
+                recipe.setFavorite(!isCurrentlyFavorite);
+                RecipeRepository.getInstance().update(recipe);
+                updateFavoriteButton(btnFavorite, recipe.isFavorite());
+                Toast.makeText(requireContext(), recipe.isFavorite() ? "Added to favorites" : "Removed from favorites", Toast.LENGTH_SHORT).show();
+            });
 
-        btnDelete.setOnClickListener(v -> {
-            new AlertDialog.Builder(requireContext())
-                    .setTitle("Delete recipe")
-                    .setMessage("Are you sure?")
-                    .setPositiveButton("Delete", (dialog, which) -> {
-                        RecipeRepository.getInstance().delete(recipe.getId());
-                        goBackSafe();
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
-        });
+            btnDelete.setOnClickListener(v -> {
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Delete recipe")
+                        .setMessage("Are you sure?")
+                        .setPositiveButton("Delete", (dialog, which) -> {
+                            RecipeRepository.getInstance().delete(recipe.getId());
+                            goBackSafe();
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            });
+            return;
+        }
+
+        String title = args != null ? args.getString("title") : null;
+        String ingredients = args != null ? args.getString("ingredients") : null;
+        String instructions = args != null ? args.getString("instructions") : null;
+
+        if (title == null && ingredients == null && instructions == null) {
+            tvTitle.setText("Recipe not found");
+            btnFavorite.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.GONE);
+            return;
+        }
+
+        tvTitle.setText(nullToEmpty(title));
+        tvIngredients.setText("Ingredients:\n" + nullToEmpty(ingredients));
+        tvInstructions.setText("Instructions:\n" + nullToEmpty(instructions));
+        ivRecipeImage.setVisibility(View.GONE);
+        btnFavorite.setVisibility(View.GONE);
+        btnDelete.setVisibility(View.GONE);
     }
 
     private String nullToEmpty(String s) {

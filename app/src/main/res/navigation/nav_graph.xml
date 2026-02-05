@@ -112,6 +112,18 @@
             android:name="recipeId"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="title"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="ingredients"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="instructions"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
 
     <fragment
@@ -134,13 +146,22 @@
         <action
             android:id="@+id/action_searchOnlineFragment_to_myRecipesFragment"
             app:destination="@id/myRecipesFragment" />
+
+        <action
+            android:id="@+id/action_searchOnlineFragment_to_recipeDetailsFragment"
+            app:destination="@id/recipeDetailsFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/searchByIngredientsFragment"
         android:name="com.example.recipesplus.ui.recipes.SearchByIngredientsFragment"
         android:label="Search By Ingredients"
-        tools:layout="@layout/fragment_search_by_ingredients" />
+        tools:layout="@layout/fragment_search_by_ingredients">
+
+        <action
+            android:id="@+id/action_searchByIngredientsFragment_to_recipeDetailsFragment"
+            app:destination="@id/recipeDetailsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/aboutFragment"

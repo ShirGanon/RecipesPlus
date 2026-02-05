@@ -28,17 +28,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:background="@drawable/bg_about_text">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
+                android:textSize="17sp"
                 android:textColor="@android:color/black"
-                android:lineSpacingExtra="6dp"
+                android:lineSpacingExtra="7dp"
                 android:text="
 RecipesPlus is an application that allows users to organize and manage their personal recipe collection in a simple and structured way.
 
@@ -48,7 +48,7 @@ The application also supports categorizing recipes and marking favorites for qui
 
 The main goal of the system is to make it easier to search, browse, and find recipes from a personal collection, as well as to help users discover recipes that match the ingredients currently available in their kitchen.
 " />
-        </LinearLayout>
+        </FrameLayout>
 
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

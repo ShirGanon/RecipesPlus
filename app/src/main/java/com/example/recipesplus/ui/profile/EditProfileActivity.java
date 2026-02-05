@@ -34,8 +34,10 @@ public class EditProfileActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back_bold);
             getSupportActionBar().setTitle("");
         }
+        toolbar.setNavigationIcon(R.drawable.ic_back_bold);
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();

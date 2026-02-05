@@ -1,5 +1,6 @@
 package com.example.recipesplus.ui.recipes;
 
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.recipesplus.R;
@@ -22,20 +24,35 @@ public class OnlineRecipeAdapter extends RecyclerView.Adapter<OnlineRecipeAdapte
     public interface OnSaveListener {
         void onSave(OnlineRecipe recipe, boolean asFavorite);
     }
+    public interface OnItemClickListener {
+        void onItemClick(OnlineRecipe recipe);
+    }
 
     private final List<OnlineRecipe> items;
     private final OnSaveListener onSaveListener;
     private final RecipeRepository recipeRepository;
+    private final boolean showFavoritePrompt;
+    private final OnItemClickListener onItemClickListener;
 
     public OnlineRecipeAdapter(List<OnlineRecipe> items, OnSaveListener onSaveListener) {
+        this(items, false, onSaveListener);
+    }
+
+    public OnlineRecipeAdapter(List<OnlineRecipe> items, boolean showFavoritePrompt, OnSaveListener onSaveListener) {
+        this(items, showFavoritePrompt, onSaveListener, null);
+    }
+
+    public OnlineRecipeAdapter(List<OnlineRecipe> items, boolean showFavoritePrompt, OnSaveListener onSaveListener, OnItemClickListener onItemClickListener) {
         this.items = items;
         this.onSaveListener = onSaveListener;
         this.recipeRepository = RecipeRepository.getInstance();
+        this.showFavoritePrompt = showFavoritePrompt;
+        this.onItemClickListener = onItemClickListener;
     }
 
     // Overloaded constructor for backward compatibility (ignored)
     public OnlineRecipeAdapter(List<OnlineRecipe> items, java.util.Set<String> unused, OnSaveListener onSaveListener) {
-        this(items, onSaveListener);
+        this(items, false, onSaveListener);
     }
 
     @NonNull
@@ -59,21 +76,33 @@ public class OnlineRecipeAdapter extends RecyclerView.Adapter<OnlineRecipeAdapte
         boolean isSaved = existing != null;
         boolean isFavorite = isSaved && existing.isFavorite();
 
+        int saveColor = ContextCompat.getColor(h.itemView.getContext(), R.color.recipe_save);
+        int unsafeColor = ContextCompat.getColor(h.itemView.getContext(), R.color.recipe_unsafe);
+
         // Configure Save Button
         if (isSaved) {
             h.btnSave.setEnabled(true);
             h.btnSave.setText("Unsave");
+            h.btnSave.setBackgroundTintList(ColorStateList.valueOf(unsafeColor));
             h.btnSave.setOnClickListener(v -> {
                 if (onSaveListener != null) {
                     onSaveListener.onSave(r, false);
+                }
+                int pos = h.getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    notifyItemChanged(pos);
                 }
             });
         } else {
             h.btnSave.setEnabled(true);
             h.btnSave.setText("Save");
+            h.btnSave.setBackgroundTintList(ColorStateList.valueOf(saveColor));
             h.btnSave.setOnClickListener(v -> {
-                if (onSaveListener != null) {
-                    onSaveListener.onSave(r, false);
+                if (onSaveListener == null) return;
+                onSaveListener.onSave(r, false);
+                int pos = h.getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    notifyItemChanged(pos);
                 }
             });
         }
@@ -88,10 +117,20 @@ public class OnlineRecipeAdapter extends RecyclerView.Adapter<OnlineRecipeAdapte
                 if (onSaveListener != null) {
                     onSaveListener.onSave(r, !isFavorite);
                 }
+                int pos = h.getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    notifyItemChanged(pos);
+                }
             });
         } else {
             h.ivFavorite.setVisibility(View.GONE);
         }
+
+        h.itemView.setOnClickListener(v -> {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(r);
+            }
+        });
     }
 
     @Override

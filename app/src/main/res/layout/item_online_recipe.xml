@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:text="Save"
             android:layout_marginTop="10dp"
-            app:backgroundTint="#572822"
+            app:backgroundTint="@color/recipe_save"
             app:cornerRadius="22dp"
             app:layout_constraintTop_toBottomOf="@+id/tv_preview"
             app:layout_constraintStart_toStartOf="parent"

@@ -2,7 +2,7 @@
     <string name="app_name">RecipesPlus</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="spoonacular_api_key">bc7ca673ac88429fab8f1e66d3a9e207</string>
+    <string name="spoonacular_api_key">bd12f4f209014ea3b4548cf6ab07997e</string>
     <string name="no_favorites_yet">No favorites yet</string>
     <string name="favorite">Favorite</string>
 
