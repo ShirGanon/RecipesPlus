@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeFragment extends Fragment {
 
+    // Entry menu that routes to all main features.
     public HomeFragment() {
         // Required empty public constructor
     }

@@ -18,6 +18,7 @@ import java.util.List;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
 
+    // Adapter for local recipes list items.
     public interface OnRecipeClickListener {
         void onRecipeClick(Recipe recipe);
         void onEditClick(Recipe recipe);

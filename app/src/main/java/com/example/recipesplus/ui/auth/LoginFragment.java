@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginFragment extends Fragment {
 
+    // Signs users in with Firebase Auth.
     private FirebaseAuth auth;
 
     @Override

@@ -42,6 +42,7 @@ import java.util.UUID;
 
 public class AddRecipeFragment extends Fragment {
 
+    // Create or edit a recipe, including image and ingredient picker.
     // Screen supports both add and edit; existingRecipe is set when editing.
     private Recipe existingRecipe = null;
 

@@ -22,6 +22,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class RegisterFragment extends Fragment {
 
+    // Creates a new Firebase user account.
     private FirebaseAuth auth;
 
     @Override

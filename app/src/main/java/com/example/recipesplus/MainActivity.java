@@ -21,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Hosts the Navigation component and a custom toolbar.
     private NavController navController;
     private AppBarConfiguration appBarConfiguration;
     private TextView toolbarTitle;

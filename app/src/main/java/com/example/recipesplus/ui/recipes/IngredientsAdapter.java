@@ -19,6 +19,7 @@ import java.util.List;
 
 public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.IngredientViewHolder> implements Filterable {
 
+    // Adapter for ingredient checklist with filter support.
     // Listener to notify the fragment when a selection changes, so it can update the chips at the top.
     public interface OnIngredientChangedListener {
         void onIngredientChanged(String ingredient, boolean isSelected);

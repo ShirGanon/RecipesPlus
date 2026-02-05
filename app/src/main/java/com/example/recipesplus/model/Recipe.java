@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public class Recipe implements Serializable {
 
+    // Local recipe model persisted to Firestore.
     private String id;
     private String title;
     private String ingredients;

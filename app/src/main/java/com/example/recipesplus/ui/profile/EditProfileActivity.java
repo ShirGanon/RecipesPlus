@@ -19,6 +19,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class EditProfileActivity extends AppCompatActivity {
 
+    // Lets users update their profile info in Firebase Auth.
     private EditText etFullName, etEmail, etPassword, etConfirmPassword;
     private Button btnSave;
 

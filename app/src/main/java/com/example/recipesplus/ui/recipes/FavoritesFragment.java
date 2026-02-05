@@ -24,6 +24,7 @@ import java.util.List;
 
 public class FavoritesFragment extends Fragment {
 
+    // Shows only recipes marked as favorites, with a search filter.
     private static final String TAG = "FavoritesFragment";
     private RecyclerView recyclerView;
     private TextView emptyText;

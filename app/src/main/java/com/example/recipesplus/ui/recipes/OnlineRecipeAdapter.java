@@ -21,6 +21,7 @@ import java.util.List;
 
 public class OnlineRecipeAdapter extends RecyclerView.Adapter<OnlineRecipeAdapter.VH> {
 
+    // Adapter for Spoonacular results (save/favorite actions).
     public interface OnSaveListener {
         void onSave(OnlineRecipe recipe, boolean asFavorite);
     }

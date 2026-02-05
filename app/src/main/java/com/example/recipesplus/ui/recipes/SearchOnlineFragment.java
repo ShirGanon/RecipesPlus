@@ -23,6 +23,7 @@ import java.util.List;
 
 public class SearchOnlineFragment extends Fragment {
 
+    // Searches Spoonacular and lets users save results locally.
     private Button btnSearch;
     private EditText etQuery;
     private RecyclerView rv;

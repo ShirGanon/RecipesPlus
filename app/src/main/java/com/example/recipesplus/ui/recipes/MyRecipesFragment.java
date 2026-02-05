@@ -22,6 +22,7 @@ import java.util.List;
 
 public class MyRecipesFragment extends Fragment {
 
+    // Shows the user's saved recipes with category filters.
     private RecyclerView rv;
     private TextView empty;
     private RecipeAdapter adapter;

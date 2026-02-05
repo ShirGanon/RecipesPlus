@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 public class SpoonacularService {
 
+    // Small HTTP client for Spoonacular endpoints.
     public interface RecipeCallback {
         void onSuccess(List<OnlineRecipe> recipes);
         void onError(String message);

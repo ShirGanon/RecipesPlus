@@ -19,6 +19,7 @@ import com.example.recipesplus.model.Recipe;
 
 public class RecipeDetailsFragment extends Fragment {
 
+    // Displays recipe details from local storage or online preview args.
     public RecipeDetailsFragment() {
         super(R.layout.fragment_recipe_details);
     }

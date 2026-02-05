@@ -17,6 +17,7 @@ import java.util.Map;
 
 public class RecipeRepository {
 
+    // Single source of truth for recipe data (Firestore + in-memory cache).
     public interface RecipeCallback {
         void onSuccess();
         void onError(Exception e);
