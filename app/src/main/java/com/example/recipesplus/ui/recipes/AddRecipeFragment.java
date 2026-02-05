@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -18,16 +20,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.recipesplus.R;
 import com.example.recipesplus.data.RecipeRepository;
 import com.example.recipesplus.model.Recipe;
+import com.example.recipesplus.services.SpoonacularService;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class AddRecipeFragment extends Fragment {
@@ -40,6 +50,16 @@ public class AddRecipeFragment extends Fragment {
     private Button btnSave;
 
     private CheckBox cbMain, cbDesserts, cbVegan, cbBreakfast;
+    private EditText etIngredients;
+    private EditText etIngredientSearch;
+    private RecyclerView rvIngredients;
+    private ChipGroup cgSelectedIngredients;
+    private HorizontalScrollView hsvSelectedIngredients;
+
+    private IngredientsAdapter ingredientsAdapter;
+    private final Set<String> autoAddedIngredients = new HashSet<>();
+    private boolean isUpdatingIngredientsText = false;
+    private List<String> existingIngredientLines = new ArrayList<>();
 
     private final FirebaseStorage storage = FirebaseStorage.getInstance();
 
@@ -65,8 +85,12 @@ public class AddRecipeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         EditText etTitle = view.findViewById(R.id.et_title);
-        EditText etIngredients = view.findViewById(R.id.et_ingredients);
+        etIngredients = view.findViewById(R.id.et_ingredients);
         EditText etInstructions = view.findViewById(R.id.et_instructions);
+        etIngredientSearch = view.findViewById(R.id.et_ingredient_search_add);
+        rvIngredients = view.findViewById(R.id.rv_ingredients_add);
+        cgSelectedIngredients = view.findViewById(R.id.cg_selected_ingredients_add);
+        hsvSelectedIngredients = view.findViewById(R.id.hsv_selected_ingredients_add);
 
         ivRecipeImage = view.findViewById(R.id.iv_recipe_image);
         Button btnSelectImage = view.findViewById(R.id.btn_select_image);
@@ -77,6 +101,8 @@ public class AddRecipeFragment extends Fragment {
         cbBreakfast = view.findViewById(R.id.cb_breakfast);
 
         btnSave = view.findViewById(R.id.btn_save_recipe);
+
+        setupIngredientPicker();
 
         btnSelectImage.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK);
@@ -91,6 +117,7 @@ public class AddRecipeFragment extends Fragment {
                 etTitle.setText(nullToEmpty(existingRecipe.getTitle()));
                 etIngredients.setText(nullToEmpty(existingRecipe.getIngredients()));
                 etInstructions.setText(nullToEmpty(existingRecipe.getInstructions()));
+                existingIngredientLines = parseIngredients(nullToEmpty(existingRecipe.getIngredients()));
 
                 applyCategoriesToCheckboxes(existingRecipe.getCategories());
 
@@ -143,6 +170,211 @@ public class AddRecipeFragment extends Fragment {
                 saveOrUpdate(title, ingredients, instructions, categories, imageUrlToUse, v);
             }
         });
+    }
+
+    private void setupIngredientPicker() {
+        if (rvIngredients == null || etIngredientSearch == null) {
+            return;
+        }
+
+        rvIngredients.setLayoutManager(new LinearLayoutManager(requireContext()));
+        ingredientsAdapter = new IngredientsAdapter(new ArrayList<>());
+        ingredientsAdapter.setOnIngredientChangedListener((ingredient, isSelected) -> {
+            if (isSelected) {
+                addChipToGroup(ingredient);
+                addIngredientToText(ingredient);
+            } else {
+                removeChipFromGroup(ingredient);
+                removeIngredientFromTextIfAutoAdded(ingredient);
+            }
+        });
+        rvIngredients.setAdapter(ingredientsAdapter);
+
+        etIngredientSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (ingredientsAdapter != null) {
+                    ingredientsAdapter.getFilter().filter(s);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
+        });
+
+        if (etIngredients != null) {
+            etIngredients.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+
+                @Override
+                public void afterTextChanged(android.text.Editable s) {
+                    if (isUpdatingIngredientsText) return;
+                    Set<String> current = new LinkedHashSet<>(parseIngredients(s.toString()));
+                    autoAddedIngredients.retainAll(current);
+                }
+            });
+        }
+
+        loadIngredients();
+    }
+
+    private void loadIngredients() {
+        new SpoonacularService().getPopularIngredients(requireContext(), new SpoonacularService.IngredientsCallback() {
+            @Override
+            public void onSuccess(List<String> ingredients) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        if (ingredientsAdapter != null) {
+                            ingredientsAdapter.updateData(ingredients);
+                            applyExistingIngredientSelections();
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onError(String message) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "Error loading ingredients: " + message, Toast.LENGTH_LONG).show();
+                    });
+                }
+            }
+        });
+    }
+
+    private void applyExistingIngredientSelections() {
+        if (ingredientsAdapter == null || existingIngredientLines == null || existingIngredientLines.isEmpty()) {
+            return;
+        }
+
+        List<String> knownSelections = new ArrayList<>();
+        for (String ingredient : existingIngredientLines) {
+            String canonical = ingredientsAdapter.findIngredient(ingredient);
+            if (canonical != null) {
+                knownSelections.add(canonical);
+                addChipToGroup(canonical);
+            }
+        }
+        ingredientsAdapter.setSelectedIngredients(knownSelections);
+    }
+
+    private void addChipToGroup(String text) {
+        if (cgSelectedIngredients == null || text == null || text.trim().isEmpty()) return;
+        for (int i = 0; i < cgSelectedIngredients.getChildCount(); i++) {
+            Chip existing = (Chip) cgSelectedIngredients.getChildAt(i);
+            if (existing.getText().toString().equalsIgnoreCase(text)) {
+                return;
+            }
+        }
+        Chip chip = new Chip(getContext());
+        chip.setText(text);
+        chip.setCloseIconVisible(true);
+        chip.setOnCloseIconClickListener(v -> {
+            cgSelectedIngredients.removeView(chip);
+            if (ingredientsAdapter != null) {
+                removeIgnoreCaseFromList(ingredientsAdapter.getSelectedIngredients(), text);
+                ingredientsAdapter.notifyDataSetChanged();
+            }
+            removeIngredientFromTextIfAutoAdded(text);
+        });
+        cgSelectedIngredients.addView(chip);
+    }
+
+    private void removeChipFromGroup(String text) {
+        if (cgSelectedIngredients == null || text == null) return;
+        for (int i = 0; i < cgSelectedIngredients.getChildCount(); i++) {
+            Chip chip = (Chip) cgSelectedIngredients.getChildAt(i);
+            if (chip.getText().toString().equalsIgnoreCase(text)) {
+                cgSelectedIngredients.removeView(chip);
+                break;
+            }
+        }
+    }
+
+    private void addIngredientToText(String ingredient) {
+        if (etIngredients == null || ingredient == null) return;
+        Set<String> current = new LinkedHashSet<>(parseIngredients(etIngredients.getText().toString()));
+        if (containsIgnoreCase(current, ingredient)) return;
+        current.add(ingredient);
+        autoAddedIngredients.add(ingredient);
+        updateIngredientsText(current);
+    }
+
+    private void removeIngredientFromTextIfAutoAdded(String ingredient) {
+        if (etIngredients == null || ingredient == null) return;
+        if (!containsIgnoreCase(autoAddedIngredients, ingredient)) return;
+        Set<String> current = new LinkedHashSet<>(parseIngredients(etIngredients.getText().toString()));
+        removeIgnoreCase(current, ingredient);
+        removeIgnoreCase(autoAddedIngredients, ingredient);
+        updateIngredientsText(current);
+    }
+
+    private void updateIngredientsText(Set<String> ingredients) {
+        isUpdatingIngredientsText = true;
+        String text = TextUtils.join("\n", ingredients);
+        etIngredients.setText(text);
+        etIngredients.setSelection(text.length());
+        isUpdatingIngredientsText = false;
+    }
+
+    private List<String> parseIngredients(String raw) {
+        List<String> result = new ArrayList<>();
+        if (raw == null) return result;
+        String[] lines = raw.split("\\r?\\n");
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (!trimmed.isEmpty()) {
+                result.add(trimmed);
+            }
+        }
+        return result;
+    }
+
+    private boolean containsIgnoreCase(Set<String> set, String value) {
+        for (String item : set) {
+            if (item.equalsIgnoreCase(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void removeIgnoreCase(Set<String> set, String value) {
+        String toRemove = null;
+        for (String item : set) {
+            if (item.equalsIgnoreCase(value)) {
+                toRemove = item;
+                break;
+            }
+        }
+        if (toRemove != null) {
+            set.remove(toRemove);
+        }
+    }
+
+    private void removeIgnoreCaseFromList(List<String> list, String value) {
+        String toRemove = null;
+        for (String item : list) {
+            if (item.equalsIgnoreCase(value)) {
+                toRemove = item;
+                break;
+            }
+        }
+        if (toRemove != null) {
+            list.remove(toRemove);
+        }
     }
 
     private void uploadImageAndThenSaveOrUpdate(

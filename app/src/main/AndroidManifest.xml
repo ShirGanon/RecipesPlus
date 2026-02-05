@@ -12,7 +12,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RecipesPlus">
 
-        <!-- ✅ חדש: מסך עריכת פרופיל -->
         <activity
             android:name=".ui.profile.EditProfileActivity"
             android:exported="false" />

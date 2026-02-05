@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.recipesplus.R;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,6 +84,25 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
     public List<String> getSelectedIngredients() {
         return selectedIngredients;
+    }
+
+    public void setSelectedIngredients(@Nullable List<String> selected) {
+        selectedIngredients.clear();
+        if (selected != null) {
+            selectedIngredients.addAll(selected);
+        }
+        notifyDataSetChanged();
+    }
+
+    @Nullable
+    public String findIngredient(String ingredient) {
+        if (ingredient == null) return null;
+        for (String item : ingredientsFull) {
+            if (item.equalsIgnoreCase(ingredient)) {
+                return item;
+            }
+        }
+        return null;
     }
 
     // Clears all user selections. Called when starting a new search.

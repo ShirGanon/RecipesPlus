@@ -14,10 +14,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingTop="?attr/actionBarSize"
+        android:fillViewport="true"
         android:clipToPadding="false"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
@@ -95,6 +96,45 @@
                 android:text="Breakfast"
                 android:textColor="@android:color/black"/>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ingredients"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="6dp"/>
+
+            <HorizontalScrollView
+                android:id="@+id/hsv_selected_ingredients_add"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/cg_selected_ingredients_add"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleLine="true"/>
+            </HorizontalScrollView>
+
+            <EditText
+                android:id="@+id/et_ingredient_search_add"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Search for an ingredient"
+                android:layout_marginTop="8dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black"
+                android:backgroundTint="@android:color/black" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_ingredients_add"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="true"/>
+
             <EditText
                 android:id="@+id/et_ingredients"
                 android:layout_width="match_parent"
@@ -131,5 +171,5 @@
                 app:cornerRadius="22dp" />
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
