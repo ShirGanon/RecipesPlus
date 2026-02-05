@@ -48,8 +48,8 @@ public class RecipeDetailsFragment extends Fragment {
             }
 
             tvTitle.setText(recipe.getTitle());
-            tvIngredients.setText("Ingredients:\n" + nullToEmpty(recipe.getIngredients()));
-            tvInstructions.setText("Instructions:\n" + nullToEmpty(recipe.getInstructions()));
+            tvIngredients.setText(nullToEmpty(recipe.getIngredients()));
+            tvInstructions.setText(nullToEmpty(recipe.getInstructions()));
 
             // Show image if available
             if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
@@ -97,8 +97,8 @@ public class RecipeDetailsFragment extends Fragment {
         }
 
         tvTitle.setText(nullToEmpty(title));
-        tvIngredients.setText("Ingredients:\n" + nullToEmpty(ingredients));
-        tvInstructions.setText("Instructions:\n" + nullToEmpty(instructions));
+        tvIngredients.setText(nullToEmpty(ingredients));
+        tvInstructions.setText(nullToEmpty(instructions));
         ivRecipeImage.setVisibility(View.GONE);
         btnFavorite.setVisibility(View.GONE);
         btnDelete.setVisibility(View.GONE);
