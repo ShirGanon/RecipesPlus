@@ -65,6 +65,7 @@ public class OnlineRecipeAdapter extends RecyclerView.Adapter<OnlineRecipeAdapte
 
         h.title.setText(r.getTitle());
 
+        // Prefer instructions for preview; fall back to summary.
         String preview = !r.getInstructions().isEmpty() ? r.getInstructions() : r.getSummary();
         h.preview.setText(preview.isEmpty() ? "No description" : preview);
 
@@ -76,7 +77,7 @@ public class OnlineRecipeAdapter extends RecyclerView.Adapter<OnlineRecipeAdapte
         int saveColor = ContextCompat.getColor(h.itemView.getContext(), R.color.recipe_save);
         int unsafeColor = ContextCompat.getColor(h.itemView.getContext(), R.color.recipe_unsafe);
 
-        // Configure Save Button
+        // Save button toggles local persistence for this recipe.
         if (isSaved) {
             h.btnSave.setEnabled(true);
             h.btnSave.setText("Unsave");

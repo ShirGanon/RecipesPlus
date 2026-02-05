@@ -42,6 +42,7 @@ import java.util.UUID;
 
 public class AddRecipeFragment extends Fragment {
 
+    // Screen supports both add and edit; existingRecipe is set when editing.
     private Recipe existingRecipe = null;
 
     private ImageView ivRecipeImage;
@@ -57,12 +58,15 @@ public class AddRecipeFragment extends Fragment {
     private HorizontalScrollView hsvSelectedIngredients;
 
     private IngredientsAdapter ingredientsAdapter;
+    // Tracks ingredients inserted by the picker (so manual edits aren't removed).
     private final Set<String> autoAddedIngredients = new HashSet<>();
+    // Guard to avoid recursive text-change events when we update the field programmatically.
     private boolean isUpdatingIngredientsText = false;
     private List<String> existingIngredientLines = new ArrayList<>();
 
     private final FirebaseStorage storage = FirebaseStorage.getInstance();
 
+    // Image chooser result handler.
     private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -102,6 +106,7 @@ public class AddRecipeFragment extends Fragment {
 
         btnSave = view.findViewById(R.id.btn_save_recipe);
 
+        // Ingredient picker (search + list + chips) syncs with the manual field.
         setupIngredientPicker();
 
         btnSelectImage.setOnClickListener(v -> {
@@ -110,7 +115,7 @@ public class AddRecipeFragment extends Fragment {
             imagePickerLauncher.launch(intent);
         });
 
-        // Edit mode?
+        // Edit mode: pre-fill with existing recipe data.
         if (getArguments() != null && getArguments().containsKey("recipe")) {
             existingRecipe = (Recipe) getArguments().getSerializable("recipe");
             if (existingRecipe != null) {
@@ -140,7 +145,7 @@ public class AddRecipeFragment extends Fragment {
             String ingredients = etIngredients.getText().toString().trim();
             String instructions = etInstructions.getText().toString().trim();
 
-            // Validation
+            // Basic validation
             if (TextUtils.isEmpty(title)) {
                 etTitle.setError("Title is required");
                 etTitle.requestFocus();
@@ -177,6 +182,7 @@ public class AddRecipeFragment extends Fragment {
             return;
         }
 
+        // Ingredient list with checkbox selections.
         rvIngredients.setLayoutManager(new LinearLayoutManager(requireContext()));
         ingredientsAdapter = new IngredientsAdapter(new ArrayList<>());
         ingredientsAdapter.setOnIngredientChangedListener((ingredient, isSelected) -> {
@@ -208,6 +214,7 @@ public class AddRecipeFragment extends Fragment {
         });
 
         if (etIngredients != null) {
+            // Keep autoAddedIngredients in sync when user edits the text manually.
             etIngredients.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -259,6 +266,7 @@ public class AddRecipeFragment extends Fragment {
             return;
         }
 
+        // Only select ingredients that exist in the fetched list.
         List<String> knownSelections = new ArrayList<>();
         for (String ingredient : existingIngredientLines) {
             String canonical = ingredientsAdapter.findIngredient(ingredient);
@@ -323,6 +331,7 @@ public class AddRecipeFragment extends Fragment {
 
     private void updateIngredientsText(Set<String> ingredients) {
         isUpdatingIngredientsText = true;
+        // Preserve line-per-ingredient format.
         String text = TextUtils.join("\n", ingredients);
         etIngredients.setText(text);
         etIngredients.setSelection(text.length());
@@ -384,6 +393,7 @@ public class AddRecipeFragment extends Fragment {
             List<String> categories,
             View v
     ) {
+        // Upload image to Firebase Storage, then save recipe with the download URL.
         String fileName = UUID.randomUUID().toString();
         StorageReference ref = storage.getReference().child("recipe_images/" + fileName);
 

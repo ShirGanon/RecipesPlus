@@ -58,6 +58,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         else if (recipe.getInstructions() != null)
             preview = recipe.getInstructions();
 
+        // Keep preview short for list readability.
         if (preview.length() > 80)
             preview = preview.substring(0, 80) + "…";
 

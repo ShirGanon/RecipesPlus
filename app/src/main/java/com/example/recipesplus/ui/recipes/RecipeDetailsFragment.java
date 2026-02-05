@@ -40,6 +40,7 @@ public class RecipeDetailsFragment extends Fragment {
         String recipeId = args != null ? args.getString("recipeId") : null;
 
         if (recipeId != null) {
+            // Local recipe flow: full actions (favorite/delete).
             final Recipe recipe = RecipeRepository.getInstance().getById(recipeId);
             if (recipe == null) {
                 tvTitle.setText("Recipe not found");
@@ -86,6 +87,7 @@ public class RecipeDetailsFragment extends Fragment {
             return;
         }
 
+        // Online preview flow: read-only content.
         String title = args != null ? args.getString("title") : null;
         String ingredients = args != null ? args.getString("ingredients") : null;
         String instructions = args != null ? args.getString("instructions") : null;

@@ -62,6 +62,7 @@ public class SearchByIngredientsFragment extends Fragment {
         cgSelectedIngredients = view.findViewById(R.id.cg_selected_ingredients);
         hsvSelectedIngredients = view.findViewById(R.id.hsv_selected_ingredients);
 
+        // Two lists: ingredient checklist and recipe results.
         rvIngredients.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvRecipes.setLayoutManager(new LinearLayoutManager(requireContext()));
 
@@ -75,6 +76,7 @@ public class SearchByIngredientsFragment extends Fragment {
         });
         rvIngredients.setAdapter(ingredientsAdapter);
 
+        // Start with ingredient selection only.
         rvRecipes.setAdapter(null);
         rvRecipes.setVisibility(View.GONE);
 
@@ -98,6 +100,7 @@ public class SearchByIngredientsFragment extends Fragment {
         });
 
         btnSearch.setOnClickListener(v -> {
+            // Toggle between selection mode and results mode.
             if (rvRecipes.getVisibility() == View.VISIBLE) {
                 rvRecipes.setVisibility(View.GONE);
                 rvIngredients.setVisibility(View.VISIBLE);
@@ -111,6 +114,7 @@ public class SearchByIngredientsFragment extends Fragment {
                     cgSelectedIngredients.removeAllViews();
                 }
             } else {
+                // Collect selected ingredients and search online.
                 List<String> selectedIngredients = ingredientsAdapter.getSelectedIngredients();
                 if (selectedIngredients.isEmpty()) {
                     Toast.makeText(requireContext(), "Please select at least one ingredient", Toast.LENGTH_SHORT).show();
@@ -122,6 +126,7 @@ public class SearchByIngredientsFragment extends Fragment {
     }
 
     private void loadIngredients() {
+        // Pull a list of popular ingredients to populate the checklist.
         new SpoonacularService().getPopularIngredients(requireContext(), new SpoonacularService.IngredientsCallback() {
             @Override
             public void onSuccess(List<String> ingredients) {
@@ -146,6 +151,7 @@ public class SearchByIngredientsFragment extends Fragment {
     }
 
     private void searchRecipes(List<String> ingredients) {
+        // Query Spoonacular for recipes that use the chosen ingredients.
         new SpoonacularService().searchByIngredients(requireContext(), ingredients, new SpoonacularService.RecipeCallback() {
             @Override
             public void onSuccess(List<OnlineRecipe> recipes) {
@@ -156,6 +162,7 @@ public class SearchByIngredientsFragment extends Fragment {
                         rvRecipes.setVisibility(View.VISIBLE);
                         btnSearch.setText("Find a New Recipe");
 
+                        // Save or favorite from the results list.
                         OnlineRecipeAdapter.OnSaveListener listener = (onlineRecipe, asFavorite) -> {
                             RecipeRepository repo = RecipeRepository.getInstance();
                             Recipe existing = repo.getByTitle(onlineRecipe.getTitle());
@@ -206,6 +213,7 @@ public class SearchByIngredientsFragment extends Fragment {
                             });
                         };
 
+                        // Tap a result to open details.
                         OnlineRecipeAdapter.OnItemClickListener clickListener = onlineRecipe -> {
                             Bundle args = new Bundle();
                             args.putString("title", onlineRecipe.getTitle());
@@ -237,6 +245,7 @@ public class SearchByIngredientsFragment extends Fragment {
     }
 
     private void addChipToGroup(String text) {
+        // Selected ingredient chips with close icon.
         Chip chip = new Chip(getContext());
         chip.setText(text);
         chip.setCloseIconVisible(true);

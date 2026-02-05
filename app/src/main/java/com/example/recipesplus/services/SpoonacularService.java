@@ -39,6 +39,7 @@ public class SpoonacularService {
         executor.execute(() -> {
             HttpURLConnection conn = null;
             try {
+                // API key is injected via BuildConfig from local.properties.
                 String apiKey = com.example.recipesplus.BuildConfig.SPOONACULAR_API_KEY;
                 String q = URLEncoder.encode(query, "UTF-8");
 
@@ -98,6 +99,7 @@ public class SpoonacularService {
         executor.execute(() -> {
             HttpURLConnection conn = null;
             try {
+                // API key is injected via BuildConfig from local.properties.
                 String apiKey = com.example.recipesplus.BuildConfig.SPOONACULAR_API_KEY;
                 String ingredientsStr = URLEncoder.encode(ingredients.stream().map(String::trim).collect(Collectors.joining(",")), "UTF-8");
 
@@ -188,6 +190,7 @@ public class SpoonacularService {
         executor.execute(() -> {
             HttpURLConnection conn = null;
             try {
+                // API key is injected via BuildConfig from local.properties.
                 String apiKey = com.example.recipesplus.BuildConfig.SPOONACULAR_API_KEY;
                 // Use popular recipes to extract a list of ingredient names.
                 String urlStr = "https://api.spoonacular.com/recipes/complexSearch"
